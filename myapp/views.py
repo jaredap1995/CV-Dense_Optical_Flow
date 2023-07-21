@@ -10,7 +10,7 @@ def livefe(request):
         cam = VideoCamera()
         time.sleep(1)  # Allow the get_frame thread to start
         
-        return StreamingHttpResponse(gen(cam), content_type="multipart/x-mixed-replace;boundary=frame")
+        return StreamingHttpResponse(gen(request, cam), content_type="multipart/x-mixed-replace;boundary=frame")
     except:  
         raise Http404("Couldn't open camera.")
 

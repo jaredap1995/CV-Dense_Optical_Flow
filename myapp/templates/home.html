@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -9,6 +10,7 @@
 <body>
     <div>
         <img src="{% url 'live_camera' %}">
+        <img src="{% static 'output.gif' %}" alt="Flow GIF">
     </div>
 </body>
 </html>

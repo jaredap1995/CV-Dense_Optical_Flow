@@ -1,24 +1,17 @@
-import os, urllib.request
+from django.shortcuts import render
 from django.conf import settings
 import numpy as np
 import threading
-import torchvision.transforms as transforms
-import torch
-import torchvision.transforms.functional as F
-from torchvision.models.optical_flow import Raft_Large_Weights, Raft_Small_Weights
-from torchvision.models.optical_flow import raft_large, raft_small
-from PIL import Image
-from torchvision.utils import flow_to_image
 import matplotlib.pyplot as plt
 import cv2
 import time
-from torchvision.io import write_jpeg
+from myapp.processing import VideoProcessing
 
 
 class VideoCamera(object):
     def __init__(self):
         self.video = cv2.VideoCapture(0)
-        self.video.set(cv2.CAP_PROP_BUFFERSIZE, 2)
+        self.video.set(cv2.CAP_PROP_BUFFERSIZE, 3)
         (self.grabbed, self.frame) = self.video.read()
         self.thread = threading.Thread(target=self.update, args=())
         self.thread.daemon = True
@@ -30,10 +23,10 @@ class VideoCamera(object):
         self.FPS = 1/30
         self.FPS_MS = int(self.FPS * 1000)
 
-        frame_width = int(self.video.get(3))
-        frame_height = int(self.video.get(4))
+        self.frame_width = int(self.video.get(3))
+        self.frame_height = int(self.video.get(4))
    
-        size = (frame_width, frame_height)
+        self.size = (self.frame_width, self.frame_height)
 
 
         #####Lucas Kanade########
@@ -64,88 +57,34 @@ class VideoCamera(object):
 
 
         self.frames = []
-        self.frames_2 = []
+        # self.frames_2 = []
         self.start_time = time.time()
         self.record_time = 5
         self.generator = None
 
-        #For recording a livestream
-        self.fourcc = cv2.VideoWriter_fourcc(*'MJPG')
-        self.out = cv2.VideoWriter('filename.avi', self.fourcc, 30.0, size)
+        # # For recording a livestream and saving it as a video....Not needed for actual livestream
+        # self.fourcc = cv2.VideoWriter_fourcc(*'MJPG')
+        # self.out = cv2.VideoWriter('filename.avi', self.fourcc, 30.0, self.size)
 
     def __del__(self):
         self.video.release()
         self.out.release()
 
-
-    def preprocess(raft_weights, img1_batch, img2_batch):
-        weights = raft_weights
-        transforms = weights.transforms()
-        img1_batch = F.resize(img1_batch, size=[256, 328], antialias=False)
-        img2_batch = F.resize(img2_batch, size=[256, 328], antialias=False)
-        return transforms(img1_batch, img2_batch)
-    
-    def calcOpticalFlow(self, batch_size=10):
-        flows = []
-        frames_1 = np.stack(self.frames)
-        end=batch_size
-        start=0
-        device = torch.device("mps")
-        torch.mps.empty_cache()
-        model = raft_small(weights=Raft_Small_Weights.DEFAULT, progress=True).to(device)
-
-        # We have enough frames for a batch, process it
-        while end < len(frames_1)+1:
-            torch.mps.empty_cache()
-            batch_1 = torch.tensor(frames_1[start:end]).permute(0, 3, 1, 2).float() 
-            batch_2 = torch.tensor(frames_1[start+1:end+1]).permute(0, 3, 1, 2).float() 
-            img1_batch, img2_batch = VideoCamera.preprocess(Raft_Small_Weights.DEFAULT, batch_1, batch_2)
-            with torch.no_grad():
-                list_of_flows = model(img1_batch.to(device), img2_batch.to(device))
-            print('Model fitted')
-            del img1_batch, img2_batch
-            torch.mps.empty_cache()
-            predicted_flow = list_of_flows[-1]
-            del list_of_flows
-            start+=batch_size
-            end+=batch_size
-            im_flow=predicted_flow[0]
-            del predicted_flow
-            flow_img = flow_to_image(im_flow).to("cpu").permute(1,2,0).numpy()
-            print(flow_img.shape)
-            flows.append(flow_img)
-        flows = np.asarray(flows)
-        np.save('flows.npy', flows)
-
-
-    def get_frame(self):
-        cv2.waitKey(self.FPS_MS)
-        image = self.frame
-        # gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-        # image = cv2.resize(image, (640, 480))
-        # self.frames.append(image)
-        # fps = self.video.get(cv2.CAP_PROP_FPS)
-        # print("Frames per second: {0}".format(fps))
+    def get_frame(self, count):
         if time.time() - self.start_time > self.record_time:
-            end_time = time.time()
-            print(f"Processing Time: {end_time - self.start_time}")
-            self.__del__()
-            # frames = np.stack(self.frames)
-            # np.save('frames.npy', frames)
+            self.video.release()
+            return None
+        if not self.video.isOpened():
+            return None
         else:
-            self.frame_count += 1  # Increment the frame counter
-            print(f"Frame {self.frame_count} captured at {time.time()}")
+            image = self.frame
+            self.frames.append(image)
+            cv2.imwrite(f'static/frame{count}.jpg', image)
+        # else:
+        #     self.frame_count += 1  # Increment the frame counter
+        #     print(f"Frame {self.frame_count} captured at {time.time()}")
 
 
-        # if time.time() - self.start_time > self.record_time:
-        #     if self.generator is None:
-        #         self.calcOpticalFlowInProgress = True
-        #         self.generator = self.calcOpticalFlow()
-        #     try:
-        #         return next(self.generator)
-        #     except StopIteration:
-        #         self.calcOpticalFlowInProgress = False
-        #         return None
         # else:
             # flow = cv2.calcOpticalFlowFarneback(self.old_gray, gray, None, 0.5, 3, 100, 3, 7, 1.1, 0)
             # magnitude, direction = cv2.cartToPolar(flow[..., 0], flow[..., 1])
@@ -160,8 +99,7 @@ class VideoCamera(object):
 
             # bgr = cv2.cvtColor(gray, cv2.COLOR_GRAY2BGR)
             # combined = np.hstack((rgb, image))
-        image = cv2.resize(image, (256,328))
-        self.out.write(image)
+        # image = cv2.resize(image, (256,328))
         _, jpeg = cv2.imencode('.jpg', image)
 
         
@@ -207,9 +145,27 @@ class VideoCamera(object):
                 (self.grabbed, self.frame) = self.video.read()
             time.sleep(self.FPS)
 
-def gen(camera):
+def gen(request, camera):
+    count = 0
     while True:
-        frame = camera.get_frame()
-        yield(b'--frame\r\n'
-            b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
-    
+        start_time = time.time()
+        frame = camera.get_frame(count)
+        end_time = time.time()
+        count+=1
+        print(f"Time to process frame: {end_time - start_time}")
+        if frame is not None:
+            yield(b'--frame\r\n'
+                b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
+        else:
+            print("Video stream ended.")
+            images = VideoProcessing(camera.frames).calcOpticalFlow()
+            print(type(images))
+            # print('length of images', len(images))
+            gif = VideoProcessing.create_gif(images)
+            print(gif)
+            if gif is not None:
+                return render(request, 'home.html', {'gif_path': gif})
+            #     yield(b'--frame\r\n'
+            #         b'Content-Type: image/gif\r\n\r\n' + gif + b'\r\n\r\n')
+            # break
+        
