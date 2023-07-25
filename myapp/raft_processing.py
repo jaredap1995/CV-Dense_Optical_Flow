@@ -17,7 +17,7 @@ import imageio
 
 
 
-class VideoProcessing:
+class RaftProcessing:
     def __init__(self, frames, batch_size=10):
         self.generator = None
         self.batch_size = batch_size
@@ -29,7 +29,7 @@ class VideoProcessing:
     def create_gif(flows):
         try:
             gif_path = 'static/output.gif'
-            imageio.mimsave(gif_path, flows)
+            imageio.mimsave(gif_path, flows, loop=10)
             return gif_path
         except Exception as e:
             print(f"An error occurred creating the gif: {e}")
@@ -37,8 +37,17 @@ class VideoProcessing:
 
 
     def prepare_image_batches (self, frames_min, frames_max):
-        
-        batch_1_frames=[torch.tensor(np.array(frame)) for frame in self.frames[::2]]
+        if len(self.frames) < 100:
+            skip_factor = 2
+        elif len(self.frames) < 200:
+            skip_factor = 3
+        elif len(self.frames) < 300:
+            skip_factor = 4
+        elif len(self.frames) < 400:
+            skip_factor = 5
+        else:
+            skip_factor = 6
+        batch_1_frames=[torch.tensor(np.array(frame)) for frame in self.frames[::skip_factor]]
         batch_1_frames = torch.stack(batch_1_frames)
         print('past step 1...enetering sliding window')
 
@@ -79,38 +88,36 @@ class VideoProcessing:
         return transforms(img1_batch, img2_batch)
     
     def calcOpticalFlow(self):
-        try:
-            flows = []
-            print('preparing images')
-            test_1, test_2 = self.prepare_image_batches(0, self.batch_size)
-            end=self.batch_size
-            start=0
-            torch.mps.empty_cache()
+        flows = []
+        print('preparing images')
+        test_1, test_2 = self.prepare_image_batches(0, self.batch_size)
+        end=self.batch_size
+        start=0
+        torch.mps.empty_cache()
 
-            # We have enough frames for a batch, process it
-            while end < len(test_1)+1:
-                print('Processing batches')
-                try:
-                    torch.mps.empty_cache()
-                    img1_batch, img2_batch = VideoProcessing.preprocess(Raft_Small_Weights.DEFAULT, test_1[start:end], test_2[start+1:end+1])
-                    with torch.no_grad():
-                        list_of_flows = self.model(img1_batch.to(self.device), img2_batch.to(self.device))
-                except Exception as e:
-                    print(f"An error occurred: {e}")
-                print('Model fitted')
-                del img1_batch, img2_batch
-                torch.mps.empty_cache()
-                predicted_flow = list_of_flows[-1]
-                del list_of_flows
-                print(f'{predicted_flow.shape}')
-                im_flow=predicted_flow[0]
-                del predicted_flow
-                flow_img = flow_to_image(im_flow).to("cpu").permute(1,2,0).numpy()
-                start+=self.batch_size
-                end+=self.batch_size
-                flows.append(flow_img)
-            return flows
+        # We have enough frames for a batch, process it
+        while end < len(test_1)+1:
+            print('Processing batches')
+            torch.mps.empty_cache()
+            img1_batch, img2_batch = RaftProcessing.preprocess(Raft_Small_Weights.DEFAULT, test_1[start:end], test_2[start+1:end+1])
+            if img1_batch.shape != img2_batch.shape:
+                return flows
+            with torch.no_grad():
+                list_of_flows = self.model(img1_batch.to(self.device), img2_batch.to(self.device))
+            print('Model fitted')
+            del img1_batch, img2_batch
+            torch.mps.empty_cache()
+            predicted_flow = list_of_flows[-1]
+            del list_of_flows
+            print(f'{predicted_flow.shape}')
+            im_flow=predicted_flow[0]
+            del predicted_flow
+            flow_img = flow_to_image(im_flow).to("cpu").permute(1,2,0).numpy()
+            start+=self.batch_size
+            end+=self.batch_size
+            flows.append(flow_img)
+        return flows
                 # _, jpeg = cv2.imencode('.jpg', flow_img)
                 # yield jpeg.tobytes()
-        except Exception as e:
-            print(f"An error occurred: {e}")
+        # except Exception as e:
+        #     print(f"An error occurred: {e}")

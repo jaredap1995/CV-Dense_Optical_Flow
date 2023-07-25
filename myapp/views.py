@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from myapp.camera import VideoCamera #MaskDetect, LiveWebCam
+from myapp.camera import VideoCamera 
 from django.http import StreamingHttpResponse
 from .camera import *
 from django.http import Http404

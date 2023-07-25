@@ -5,28 +5,22 @@ import threading
 import matplotlib.pyplot as plt
 import cv2
 import time
-from myapp.processing import VideoProcessing
+from myapp.raft_processing import RaftProcessing
+from myapp.farneback_processing import FarnebackProcessing
+import queue
 
 
 class VideoCamera(object):
     def __init__(self):
         self.video = cv2.VideoCapture(0)
-        self.video.set(cv2.CAP_PROP_BUFFERSIZE, 3)
+        self.video.set(cv2.CAP_PROP_BUFFERSIZE, 2)
         (self.grabbed, self.frame) = self.video.read()
         self.thread = threading.Thread(target=self.update, args=())
         self.thread.daemon = True
         self.thread.start()
         self.frame_count = 0
-
-        # FPS = 1/X
-        # X = desired FPS
-        self.FPS = 1/30
-        self.FPS_MS = int(self.FPS * 1000)
-
-        self.frame_width = int(self.video.get(3))
-        self.frame_height = int(self.video.get(4))
-   
-        self.size = (self.frame_width, self.frame_height)
+        self.frame_width = 128
+        self.frame_height = 128
 
 
         #####Lucas Kanade########
@@ -46,29 +40,28 @@ class VideoCamera(object):
         # self.p0 = cv2.goodFeaturesToTrack(self.old_gray, mask = None, maxCorners = self.maxCorners, qualityLevel = self.qualityLevel, minDistance = self.minDistance, blockSize = self.blockSize)
         # self.keypoints = [] 
 
+   
+        self.flow_queue = queue.Queue()
 
-        #########Farneabck Flow########
-        self.old_frame = self.frame
-        self.old_gray = cv2.cvtColor(self.old_frame, cv2.COLOR_BGR2GRAY)
-
-        # Create a mask image for drawing purposes
-        self.mask = np.zeros_like(self.old_frame)
-        self.mask[..., 1] = 255
+        # FPS = 1/X
+        # X = desired FPS
+        self.FPS = 1/30
+        self.FPS_MS = int(self.FPS * 1000)
 
 
+        # #########Farneabck Flow########
+        self.old_gray = cv2.cvtColor(self.frame, cv2.COLOR_BGR2GRAY)
+        self.gray = None
+
+
+        # self.flows = []
         self.frames = []
-        # self.frames_2 = []
         self.start_time = time.time()
         self.record_time = 5
         self.generator = None
 
-        # # For recording a livestream and saving it as a video....Not needed for actual livestream
-        # self.fourcc = cv2.VideoWriter_fourcc(*'MJPG')
-        # self.out = cv2.VideoWriter('filename.avi', self.fourcc, 30.0, self.size)
-
     def __del__(self):
         self.video.release()
-        self.out.release()
 
     def get_frame(self, count):
         if time.time() - self.start_time > self.record_time:
@@ -77,73 +70,47 @@ class VideoCamera(object):
         if not self.video.isOpened():
             return None
         else:
-            image = self.frame
+            rgb = self.process_frame()
+            image = cv2.resize(self.frame, (680, 480))
             self.frames.append(image)
-            cv2.imwrite(f'static/frame{count}.jpg', image)
-        # else:
-        #     self.frame_count += 1  # Increment the frame counter
-        #     print(f"Frame {self.frame_count} captured at {time.time()}")
-
-
-        # else:
-            # flow = cv2.calcOpticalFlowFarneback(self.old_gray, gray, None, 0.5, 3, 100, 3, 7, 1.1, 0)
-            # magnitude, direction = cv2.cartToPolar(flow[..., 0], flow[..., 1])
-
-            # # Sets image hue according to the optical flow direction
-            # self.mask[..., 0] = direction * 180 / np.pi / 2
-            # # Sets image value according to the optical flow magnitude (normalized)
-            # self.mask[..., 2] = cv2.normalize(magnitude, None, 0, 255, cv2.NORM_MINMAX)
-            # # Converts HSV to RGB (BGR) color representation
-            # rgb = cv2.cvtColor(self.mask, cv2.COLOR_HSV2BGR)
-            
-
-            # bgr = cv2.cvtColor(gray, cv2.COLOR_GRAY2BGR)
-            # combined = np.hstack((rgb, image))
-        # image = cv2.resize(image, (256,328))
+            fps = self.video.get(cv2.CAP_PROP_FPS)
+            print("Frames per second: {0}".format(fps))
         _, jpeg = cv2.imencode('.jpg', image)
 
-        
         return jpeg.tobytes()
 
+    def process_frame(self):
+        gray = cv2.cvtColor(self.frame, cv2.COLOR_BGR2GRAY)
+        self.old_gray = cv2.resize(self.old_gray, (self.frame_width, self.frame_height))
+        gray = cv2.resize(gray, (self.frame_width, self.frame_height))
+        # Create a mask image for drawing purposes
+        mask = np.zeros((*self.old_gray.shape, 3), dtype=np.uint8)
+        mask[..., 1] = 255
 
+        # calculate optical flow
+        if self.flow_queue.qsize()==0:
+            flow = cv2.calcOpticalFlowFarneback(self.old_gray, gray, None, 0.5, 3, 100, 3, 7, 1.1, 0)
+        else:
+            flow = cv2.calcOpticalFlowFarneback(self.old_gray, gray, self.flow_queue.get(), 0.5, 3, 100, 3, 7, 1.1, 0)
 
-
-        ######Farneabck Flow########
-        # # calculate optical flow
         # flow = cv2.calcOpticalFlowFarneback(self.old_gray, gray, None, 0.5, 3, 100, 3, 7, 1.1, 0)
-        # magnitude, direction = cv2.cartToPolar(flow[..., 0], flow[..., 1])
+        magnitude, direction = cv2.cartToPolar(flow[..., 0], flow[..., 1])
+        # Sets image hue according to the optical flow direction
+        mask[..., 0] = direction * 180 / np.pi / 2
+        # Sets image value according to the optical flow magnitude (normalized)
+        mask[..., 2] = cv2.normalize(magnitude, None, 0, 255, cv2.NORM_MINMAX)
+        # Converts HSV to RGB (BGR) color representation
+        rgb = cv2.cvtColor(mask, cv2.COLOR_HSV2BGR)
 
-        # # Sets image hue according to the optical flow direction
-        # self.mask[..., 0] = direction * 180 / np.pi / 2
-        # # Sets image value according to the optical flow magnitude (normalized)
-        # self.mask[..., 2] = cv2.normalize(magnitude, None, 0, 255, cv2.NORM_MINMAX)
-        # # Converts HSV to RGB (BGR) color representation
-        # rgb = cv2.cvtColor(self.mask, cv2.COLOR_HSV2BGR)
+        self.flow_queue.put(flow)
 
-        ######Lucaks Kanade Flow########
-        # # draw the tracks
-        # for i,(new,old) in enumerate(zip(good_new,good_old)):
-        #     a,b = map(int, new.ravel())
-        #     c,d = map(int, old.ravel())
-        #     self.mask = cv2.line(self.mask, (a,b),(c,d), self.color[i].tolist(), 2)
-        #     image = cv2.circle(image,(a,b),5,self.color[i].tolist(),-1)
-        #     self.keypoints.append((a, b))  # Append the keypoints to the list
-
-        # Now update the previous frame and previous points
-        # self.old_gray = gray.copy()
-        # self.p0 = good_new.reshape(-1,1,2)
-
-
-
-        # fps = self.video.get(cv2.CAP_PROP_FPS)
-        # print("Frames per second: {0}".format(fps))
-
+        return rgb
+    
 
     def update(self):
         while True:
             if self.video.isOpened():
                 (self.grabbed, self.frame) = self.video.read()
-            time.sleep(self.FPS)
 
 def gen(request, camera):
     count = 0
@@ -158,14 +125,20 @@ def gen(request, camera):
                 b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
         else:
             print("Video stream ended.")
-            images = VideoProcessing(camera.frames).calcOpticalFlow()
+            print(len(camera.frames))
+            # farneback = FarnebackProcessing()
+            # for frame in camera.frames:
+            #     for image in farneback.image_farneback_flow(frame):
+            #         if image is not None:
+            #             yield(b'--frame\r\n'
+            #                 b'Content-Type: image/jpeg\r\n\r\n' + image + b'\r\n\r\n')
+            images = RaftProcessing(camera.frames).calcOpticalFlow()
             print(type(images))
-            # print('length of images', len(images))
-            gif = VideoProcessing.create_gif(images)
+            gif = RaftProcessing.create_gif(images)
             print(gif)
             if gif is not None:
-                return render(request, 'home.html', {'gif_path': gif})
-            #     yield(b'--frame\r\n'
-            #         b'Content-Type: image/gif\r\n\r\n' + gif + b'\r\n\r\n')
-            # break
-        
+                yield(b'--frame\r\n'
+                    b'Content-Type: text/html\r\n\r\n' +
+                    b'<script>showGif();</script>' +
+                    b'\r\n\r\n')
+            break

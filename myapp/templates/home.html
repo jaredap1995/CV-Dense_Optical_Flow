@@ -6,11 +6,27 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>WebCamera</title>
+    <script>
+        function showGif() {
+            var gifUrl = "{% static 'output.gif' %}?{{ cache_buster }}";
+            var checkGifExists = setInterval(function() {
+                fetch(gifUrl).then(response => {
+                    if (response.ok) {
+                        clearInterval(checkGifExists);
+                        var img = document.createElement("img");
+                        img.src = gifUrl;
+                        img.alt = 'Flow GIF';
+                        document.getElementById('gifContainer').appendChild(img);
+                    }
+                }).catch(error => {console.log(error);});
+            }, 1000);
+        }
+        </script>
 </head>
-<body>
+<body onload="showGif()">
     <div>
+        <div id="gifContainer"></div>
         <img src="{% url 'live_camera' %}">
-        <img src="{% static 'output.gif' %}" alt="Flow GIF">
     </div>
 </body>
 </html>
