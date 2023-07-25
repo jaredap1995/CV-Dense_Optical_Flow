@@ -4,7 +4,7 @@
 
 - The project is still in preliminary development and will be updated as progress is made.
 
-- ![RAFT of a Goblet Squat](./myproject/computer-vision/myapp/frames/output.png)
+- ![RAFT of a Goblet Squat](./myapp/frames/output.png)
 
 
 ## Inspirations for the project:
