@@ -4,6 +4,9 @@
 
 - The project is still in preliminary development and will be updated as progress is made.
 
+- ![RAFT of a Goblet Squat](myproject/computer-vision/myapp/frames/output.png)
+
+
 ## Inspirations for the project:
 - https://inria.hal.science/hal-00803241/file/IJCV.pdf
 - https://arxiv.org/abs/2003.12039
