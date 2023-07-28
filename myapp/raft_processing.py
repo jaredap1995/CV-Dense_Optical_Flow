@@ -117,7 +117,4 @@ class RaftProcessing:
             end+=self.batch_size
             flows.append(flow_img)
         return flows
-                # _, jpeg = cv2.imencode('.jpg', flow_img)
-                # yield jpeg.tobytes()
-        # except Exception as e:
-        #     print(f"An error occurred: {e}")
+                
