@@ -43,3 +43,7 @@ class FarnebackProcessing(object):
         image = jpeg.tobytes() 
         yield image
 
+    # def featurePreprocessing(self, frames):
+
+
+

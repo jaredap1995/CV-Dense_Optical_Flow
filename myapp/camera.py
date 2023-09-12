@@ -8,6 +8,7 @@ import time
 from myapp.raft_processing import RaftProcessing
 from myapp.farneback_processing import FarnebackProcessing
 import queue
+from myapp.MotionAnalyzer import MotionAnalyzer, RealTimePeakAnalyzer
 
 
 class VideoCamera(object):
@@ -19,8 +20,8 @@ class VideoCamera(object):
         self.thread.daemon = True
         self.thread.start()
         self.frame_count = 0
-        self.frame_width = 128
-        self.frame_height = 128
+        self.frame_height = 680
+        self.frame_width = 480
 
 
         #####Lucas Kanade########
@@ -54,7 +55,7 @@ class VideoCamera(object):
         self.gray = None
 
 
-        # self.flows = []
+        self.flows = []
         self.frames = []
         self.start_time = time.time()
         self.record_time = 5
@@ -71,29 +72,23 @@ class VideoCamera(object):
             return None
         else:
             rgb = self.process_frame()
-            image = cv2.resize(self.frame, (680, 480))
+            image = cv2.resize(self.frame, (self.frame_height, self.frame_width))
             self.frames.append(image)
             fps = self.video.get(cv2.CAP_PROP_FPS)
             print("Frames per second: {0}".format(fps))
-        _, jpeg = cv2.imencode('.jpg', image)
+        _, jpeg = cv2.imencode('.jpg', image) #Change to rgb to see color hue or image to see normal stream
 
         return jpeg.tobytes()
 
     def process_frame(self):
         gray = cv2.cvtColor(self.frame, cv2.COLOR_BGR2GRAY)
-        self.old_gray = cv2.resize(self.old_gray, (self.frame_width, self.frame_height))
-        gray = cv2.resize(gray, (self.frame_width, self.frame_height))
+        self.old_gray = cv2.resize(self.old_gray, (self.frame_height, self.frame_width))
+        gray = cv2.resize(gray, (self.frame_height, self.frame_width))
         # Create a mask image for drawing purposes
         mask = np.zeros((*self.old_gray.shape, 3), dtype=np.uint8)
         mask[..., 1] = 255
 
-        # calculate optical flow
-        if self.flow_queue.qsize()==0:
-            flow = cv2.calcOpticalFlowFarneback(self.old_gray, gray, None, 0.5, 3, 100, 3, 7, 1.1, 0)
-        else:
-            flow = cv2.calcOpticalFlowFarneback(self.old_gray, gray, self.flow_queue.get(), 0.5, 3, 100, 3, 7, 1.1, 0)
-
-        # flow = cv2.calcOpticalFlowFarneback(self.old_gray, gray, None, 0.5, 3, 100, 3, 7, 1.1, 0)
+        flow = cv2.calcOpticalFlowFarneback(self.old_gray, gray, None, 0.5, 3, 100, 3, 7, 1.1, 0)
         magnitude, direction = cv2.cartToPolar(flow[..., 0], flow[..., 1])
         # Sets image hue according to the optical flow direction
         mask[..., 0] = direction * 180 / np.pi / 2
@@ -103,6 +98,7 @@ class VideoCamera(object):
         rgb = cv2.cvtColor(mask, cv2.COLOR_HSV2BGR)
 
         self.flow_queue.put(flow)
+        self.flows.append(flow)
 
         return rgb
     
@@ -114,9 +110,15 @@ class VideoCamera(object):
 
 def gen(request, camera):
     count = 0
+    analyzer = MotionAnalyzer(H=480, W=680)
+    peak_analyzer = RealTimePeakAnalyzer()
     while True:
         start_time = time.time()
         frame = camera.get_frame(count)
+        rep = analyzer.analyze_frame(camera.flows[-1])
+        if rep is not None:
+            con_peak, ecc_peak, _, _ = peak_analyzer.analyze(rep[11,20,1])
+            # print(rep.shape)
         end_time = time.time()
         count+=1
         print(f"Time to process frame: {end_time - start_time}")
@@ -125,20 +127,39 @@ def gen(request, camera):
                 b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
         else:
             print("Video stream ended.")
+            print(len(camera.flows))
             print(len(camera.frames))
-            # farneback = FarnebackProcessing()
-            # for frame in camera.frames:
-            #     for image in farneback.image_farneback_flow(frame):
-            #         if image is not None:
-            #             yield(b'--frame\r\n'
-            #                 b'Content-Type: image/jpeg\r\n\r\n' + image + b'\r\n\r\n')
-            images = RaftProcessing(camera.frames).calcOpticalFlow()
-            print(type(images))
-            gif = RaftProcessing.create_gif(images)
-            print(gif)
-            if gif is not None:
-                yield(b'--frame\r\n'
-                    b'Content-Type: text/html\r\n\r\n' +
-                    b'<script>showGif();</script>' +
-                    b'\r\n\r\n')
+            print(camera.flows[0]==camera.flows[1])
+            np.save("flows.npy", camera.flows)
+            peak_analyzer.save_peaks()
+            analyzer.save_trajectories()
+            break
+            farneback = FarnebackProcessing()
+
+
+            ###### Enter Code to run pipeline on frames here ######
+            # start_time = time.time()
+            # frames = np.asarray(camera.frames)
+            # features = FarnebackProcessing().featurePreprocessing(frames)
+            # end_time = time.time()
+            # print(f"Time to engineer features on live stream: {end_time - start_time}")
+
+            ####### This renders the color hue image post exercise for visualization purposes########
+            for frame in camera.frames:
+                for image in farneback.image_farneback_flow(frame):
+                    if image is not None:
+                        yield(b'--frame\r\n'
+                            b'Content-Type: image/jpeg\r\n\r\n' + image + b'\r\n\r\n')
+            ##################################################
+
+
+            # images = RaftProcessing(camera.frames).calcOpticalFlow()
+            # print(type(images))
+            # gif = RaftProcessing.create_gif(images)
+            # print(gif)
+            # if gif is not None:
+            #     yield(b'--frame\r\n'
+            #         b'Content-Type: text/html\r\n\r\n' +
+            #         b'<script>showGif();</script>' +
+            #         b'\r\n\r\n')
             break
