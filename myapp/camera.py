@@ -58,7 +58,7 @@ class VideoCamera(object):
         self.flows = []
         self.frames = []
         self.start_time = time.time()
-        self.record_time = 5
+        self.record_time = 15
         self.generator = None
 
     def __del__(self):
@@ -112,12 +112,13 @@ def gen(request, camera):
     count = 0
     analyzer = MotionAnalyzer(H=480, W=680)
     peak_analyzer = RealTimePeakAnalyzer()
+    # time.sleep(2)
     while True:
         start_time = time.time()
         frame = camera.get_frame(count)
         rep = analyzer.analyze_frame(camera.flows[-1])
         if rep is not None:
-            con_peak, ecc_peak, _, _ = peak_analyzer.analyze(rep[11,20,1])
+            con_peak, ecc_peak, _, _ = peak_analyzer.analyze(rep[1])
             # print(rep.shape)
         end_time = time.time()
         count+=1
@@ -127,10 +128,6 @@ def gen(request, camera):
                 b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
         else:
             print("Video stream ended.")
-            print(len(camera.flows))
-            print(len(camera.frames))
-            print(camera.flows[0]==camera.flows[1])
-            np.save("flows.npy", camera.flows)
             peak_analyzer.save_peaks()
             analyzer.save_trajectories()
             break

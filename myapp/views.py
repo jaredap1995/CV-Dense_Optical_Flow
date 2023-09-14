@@ -16,3 +16,8 @@ def livefe(request):
 
 def index(request, *args, **kwargs):
     return render(request, 'home.html')
+
+# def display_repetitions(request):
+#     # Your logic to get the repetition count
+#     rep_count = get_repetition_count()  # replace with your method to get the count
+#     return render(request, 'repetitions.html', {'rep_count': rep_count})

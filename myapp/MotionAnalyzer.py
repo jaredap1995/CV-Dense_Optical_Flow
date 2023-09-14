@@ -1,9 +1,11 @@
 import numpy as np
 from scipy import signal
-from myapp.data_stream_processing import ZScoreNormalizer, MinMaxScaler, SGFilter, EMANormalizer
+from myapp.data_stream_processing import ZScoreNormalizer, MinMaxScaler, SGFilter, EMANormalizer, DynamicPeakThreshold
+import pandas as pd
+from scipy.signal import butter, filtfilt
 
 class MotionAnalyzer:
-    def __init__(self, H, W, grid_size=20, max_length=15, drift_threshold=10, mag_buffer_size=30):
+    def __init__(self, H, W, grid_size=10, max_length=5, drift_threshold=5, mag_buffer_size=30):
         self.grid_size = grid_size
         self.max_length = max_length
         self.drift_threshold = drift_threshold
@@ -24,6 +26,8 @@ class MotionAnalyzer:
 
         self.magnitude_buffer = np.zeros(mag_buffer_size)
         self.zscore_normalizer = ZScoreNormalizer()
+        self.EMA_normalizer = EMANormalizer()
+        self.min_max_scaler = MinMaxScaler()
 
     def analyze_frame(self, flow_frame):
         # Update points
@@ -53,17 +57,17 @@ class MotionAnalyzer:
 
         ###### Trying Different classes from other file ##########
         normalized_displacement = self.zscore_normalizer.normalize(displacement)
-        print('normalized displacement: ', normalized_displacement, '\n')
-        self.trajectories.append(normalized_displacement)
-        return normalized_displacement
+        avg_displacement = np.mean(normalized_displacement, axis=(0,1))
+        self.trajectories.append(avg_displacement)
+        return avg_displacement
 
 
         ########## returns non-normalized trajectory... ##########
-        # self.previous_points = np.copy(self.points)
-        # norm_y_vector = displacement[:,:,1]
-        # norm_x_vector = displacement[:,:,0]
-        # self.trajectories.append(displacement)
-        # return displacement
+        norm_y_vector = displacement[:,:,1]
+        norm_x_vector = displacement[:,:,0]
+        avg_displacement = np.mean(displacement, axis=(0,1))
+        self.trajectories.append(avg_displacement)
+        return avg_displacement
         ########## works but leads to incosistent peak heights ##########
 
         ########## returns normalized trajectory...attempted with numpy ##########
@@ -107,51 +111,79 @@ class RealTimePeakAnalyzer:
     def __init__(self, buffer_size=30, memory_size = 5):
         self.buffer_size = buffer_size
         self.data_buffer = np.zeros(self.buffer_size)
-        self.rep_counter = 0
         self.all_con_peaks = []
         self.all_ecc_peaks = []
         self.memory_size = memory_size
-        self.recent_peaks = []
+        self.recent_con_peaks = []
+        self.recent_ecc_peaks = []
+        self.rep_counter = 0
         self.processed_data_count = 0
+        self.dynamic_tyhreshold = DynamicPeakThreshold()
+        self.sgf = SGFilter()
+        self.filtered_data = None
+        self.smoothed_data = None
+
+    def butter_highpass(data, cutoff=2.8, fs=30, order=3):
+        nyq = 0.1 * fs
+        normal_cutoff = cutoff/nyq
+        print("this is this notmal cutoff: ", normal_cutoff)
+        b, a = butter(order, normal_cutoff, btype='high', analog=False)
+        y=filtfilt(b, a, data)
+        return y
         
-    def analyze(self, new_data_point):
-        # Shift the data in the buffer to make space for the new data point
-        self.data_buffer[:-1] = self.data_buffer[1:]
-        self.data_buffer[-1] = new_data_point
-        
-        # Analyze peaks
-        concentric_peaks, _ = signal.find_peaks(-self.data_buffer, height=0.7, distance=15)
-        eccentric_peaks, _ = signal.find_peaks(self.data_buffer, height=0.7, distance=15)
+    def analyze(self, new_data_point, min_distance = 25):
+        # if self.processed_data_count < self.buffer_size:
+        #     self.processed_data_count += 1
+        #     return None, None, None, None
+        # else:
+            # Shift the data in the buffer to make space for the new data point
+            self.data_buffer[:-1] = self.data_buffer[1:]
+            self.data_buffer[-1] = new_data_point
+            # self.dynamic_tyhreshold.update(new_data_point)
+            # threshold = self.dynamic_tyhreshold.get_threshold()
 
-        # Calculate the offset for absolute positioning
-        offset = self.processed_data_count - self.buffer_size + 1
-        
-        concentric_peaks_abs = [peak + offset for peak in concentric_peaks]
-        eccentric_peaks_abs = [peak + offset for peak in eccentric_peaks]
+            # Filter the data
+            print("this is the data buffer: ", self.data_buffer, self.data_buffer.shape)
+            self.data_buffer = self.butter_highpass(self.data_buffer)
+            
+            # Analyze peaks
+            concentric_peaks, _ = signal.find_peaks(-self.data_buffer, height=0.7, distance=min_distance, prominence=1)
+            print('Concentric peaks: ', concentric_peaks, '\n')
+            eccentric_peaks, _ = signal.find_peaks(self.data_buffer, height=0.7, distance=min_distance, prominence=1)
+            print('Eccentric peaks: ', eccentric_peaks, '\n')
 
-        # Filter the peaks that are too close to recent peaks
-        concentric_peaks_abs = [p for p in concentric_peaks_abs if all(np.abs(p - rp) > 5 for rp in self.recent_peaks)]
-        eccentric_peaks_abs = [p for p in eccentric_peaks_abs if all(np.abs(p - rp) > 5 for rp in self.recent_peaks)]
-        
-        print('Concentric peaks abs: ', concentric_peaks_abs, '\n')
-        print('Eccentric peaks abs: ', eccentric_peaks_abs, '\n')
+            # Calculate the offset for absolute positioning
+            offset = self.processed_data_count - self.buffer_size +1
+            
+            concentric_peaks_abs = [peak + offset for peak in concentric_peaks]
+            eccentric_peaks_abs = [peak + offset for peak in eccentric_peaks]
 
-        # Update recent peaks
-        self.recent_peaks = (self.recent_peaks + concentric_peaks_abs + eccentric_peaks_abs)[-self.memory_size:]
-        print('Recent peaks: ', self.recent_peaks, '\n')
+            # Filter the peaks that are too close to recent peaks
+            concentric_peaks_abs = [p for p in concentric_peaks_abs if all(np.abs(p - rp) > min_distance for rp in self.recent_con_peaks)]
+            eccentric_peaks_abs = [p for p in eccentric_peaks_abs if all(np.abs(p - rp) > min_distance for rp in self.recent_ecc_peaks)]
+            
+            print('Concentric peaks abs: ', concentric_peaks_abs, '\n')
+            print('Eccentric peaks abs: ', eccentric_peaks_abs, '\n')
 
-        # Store peaks
-        self.all_con_peaks.extend(concentric_peaks_abs)
-        self.all_ecc_peaks.extend(eccentric_peaks_abs)
+            # Update recent peaks
+            self.recent_con_peaks = (self.recent_con_peaks + concentric_peaks_abs)[-self.memory_size:]
+            self.recent_ecc_peaks = (self.recent_ecc_peaks + eccentric_peaks_abs)[-self.memory_size:]
+            print('Recent peaks: ', self.recent_con_peaks, '\n')
+            print('Recent peaks: ', self.recent_ecc_peaks, '\n')
 
-        # Increment repetition counter and processed data count
-        self.rep_counter += len(concentric_peaks_abs)
-        print(f"Total Repetitions: {self.rep_counter}")
+            # Store peaks
+            self.all_con_peaks.extend(concentric_peaks_abs)
+            self.all_ecc_peaks.extend(eccentric_peaks_abs)
 
-        self.processed_data_count += 1
-        print(f"Processed data count: {self.processed_data_count}")
+            # Increment repetition counter and processed data count
+            if len(concentric_peaks_abs) > 0:
+                self.rep_counter += 1
+            print(f"Total Repetitions: {self.rep_counter}")
 
-        return concentric_peaks, eccentric_peaks, concentric_peaks_abs, eccentric_peaks_abs
+            self.processed_data_count += 1
+            print(f"Processed data count: {self.processed_data_count}")
+
+            return concentric_peaks, eccentric_peaks, concentric_peaks_abs, eccentric_peaks_abs
 
     def save_peaks(self, filename_concentric="concentric_peaks.npy", filename_eccentric="eccentric_peaks.npy"): 
         np.save(filename_concentric, self.all_con_peaks)
