@@ -62,7 +62,7 @@ class SGFilter:
         return savgol_filter(data, self.window_length, self.polyorder)
     
 class DynamicPeakThreshold:
-    def __init__(self, windoew_size = 30, factor = 1.5):
+    def __init__(self, windoew_size = 15, factor = 2.5):
         self.window_size = windoew_size
         self.factor = factor
         self.data_buffer = []

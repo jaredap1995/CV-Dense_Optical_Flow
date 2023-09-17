@@ -23,6 +23,10 @@ class VideoCamera(object):
         self.frame_height = 680
         self.frame_width = 480
 
+        self.current_rep_count = 0
+        self.analyzer = MotionAnalyzer(H=self.frame_width, W=self.frame_height)
+        self.peak_analyzer = RealTimePeakAnalyzer()
+
 
         #####Lucas Kanade########
         # parameters for sparse optical flow
@@ -58,20 +62,21 @@ class VideoCamera(object):
         self.flows = []
         self.frames = []
         self.start_time = time.time()
-        self.record_time = 15
+        self.record_time = 8
         self.generator = None
 
     def __del__(self):
         self.video.release()
 
     def get_frame(self, count):
-        if time.time() - self.start_time > self.record_time:
-            self.video.release()
-            return None
+        # if time.time() - self.start_time > self.record_time:
+        #     self.video.release()
+        #     return None
         if not self.video.isOpened():
             return None
         else:
-            rgb = self.process_frame()
+            f = self.process_frame()
+            self.get_rep_count(flow=f)
             image = cv2.resize(self.frame, (self.frame_height, self.frame_width))
             self.frames.append(image)
             fps = self.video.get(cv2.CAP_PROP_FPS)
@@ -89,18 +94,19 @@ class VideoCamera(object):
         mask[..., 1] = 255
 
         flow = cv2.calcOpticalFlowFarneback(self.old_gray, gray, None, 0.5, 3, 100, 3, 7, 1.1, 0)
-        magnitude, direction = cv2.cartToPolar(flow[..., 0], flow[..., 1])
-        # Sets image hue according to the optical flow direction
-        mask[..., 0] = direction * 180 / np.pi / 2
-        # Sets image value according to the optical flow magnitude (normalized)
-        mask[..., 2] = cv2.normalize(magnitude, None, 0, 255, cv2.NORM_MINMAX)
-        # Converts HSV to RGB (BGR) color representation
-        rgb = cv2.cvtColor(mask, cv2.COLOR_HSV2BGR)
+        
+        # magnitude, direction = cv2.cartToPolar(flow[..., 0], flow[..., 1])
+        # # Sets image hue according to the optical flow direction
+        # mask[..., 0] = direction * 180 / np.pi / 2
+        # # Sets image value according to the optical flow magnitude (normalized)
+        # mask[..., 2] = cv2.normalize(magnitude, None, 0, 255, cv2.NORM_MINMAX)
+        # # Converts HSV to RGB (BGR) color representation
+        # rgb = cv2.cvtColor(mask, cv2.COLOR_HSV2BGR)
 
         self.flow_queue.put(flow)
         self.flows.append(flow)
 
-        return rgb
+        return flow
     
 
     def update(self):
@@ -108,28 +114,39 @@ class VideoCamera(object):
             if self.video.isOpened():
                 (self.grabbed, self.frame) = self.video.read()
 
+    
+    def get_rep_count(self, flow):
+        rep = self.analyzer.analyze_frame(flow)
+        if rep is not None:
+            con_peak, ecc_peak, _, _ = self.peak_analyzer.analyze(rep[1])
+            print('rep counter test: ', self.peak_analyzer.rep_counter)
+            self.current_rep_count = self.peak_analyzer.rep_counter
+        else:
+            self.peak_analyzer.save_peaks()
+            self.analyzer.save_trajectories()
+
+    def fetch_reps(self):
+        return self.current_rep_count
+            
+
 def gen(request, camera):
     count = 0
-    analyzer = MotionAnalyzer(H=480, W=680)
-    peak_analyzer = RealTimePeakAnalyzer()
+    # analyzer = MotionAnalyzer(H=camera.frame_width, W=camera.frame_height)
+    # peak_analyzer = RealTimePeakAnalyzer()
     # time.sleep(2)
     while True:
-        start_time = time.time()
         frame = camera.get_frame(count)
-        rep = analyzer.analyze_frame(camera.flows[-1])
-        if rep is not None:
-            con_peak, ecc_peak, _, _ = peak_analyzer.analyze(rep[1])
-            # print(rep.shape)
-        end_time = time.time()
-        count+=1
-        print(f"Time to process frame: {end_time - start_time}")
+        # rep = analyzer.analyze_frame(camera.flows[-1])
+        # if rep is not None:
+        #     con_peak, ecc_peak, _, _ = peak_analyzer.analyze(rep[1])
+        # count+=1
         if frame is not None:
             yield(b'--frame\r\n'
                 b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
         else:
             print("Video stream ended.")
-            peak_analyzer.save_peaks()
-            analyzer.save_trajectories()
+            # peak_analyzer.save_peaks()
+            # analyzer.save_trajectories()
             break
             farneback = FarnebackProcessing()
 

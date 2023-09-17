@@ -5,7 +5,7 @@ import pandas as pd
 from scipy.signal import butter, filtfilt
 
 class MotionAnalyzer:
-    def __init__(self, H, W, grid_size=10, max_length=5, drift_threshold=5, mag_buffer_size=30):
+    def __init__(self, H, W, grid_size=8, max_length=20, drift_threshold=15, mag_buffer_size=30):
         self.grid_size = grid_size
         self.max_length = max_length
         self.drift_threshold = drift_threshold
@@ -33,10 +33,10 @@ class MotionAnalyzer:
         # Update points
         self.points = self.start_points + flow_frame[self.start_points[:, :, 0].astype(int), self.start_points[:, :, 1].astype(int)]
 
-        # Handle trajectories that have reached maximum length
-        max_length_mask = self.trajectory_lengths >= self.max_length
-        self.points[max_length_mask] = self.trajectory_starts[max_length_mask]
-        self.trajectory_lengths[max_length_mask] = 0
+        # # Handle trajectories that have reached maximum length
+        # max_length_mask = self.trajectory_lengths >= self.max_length
+        # self.points[max_length_mask] = self.trajectory_starts[max_length_mask]
+        # self.trajectory_lengths[max_length_mask] = 0
 
         # Handle drifted trajectories
         drift_mask = np.linalg.norm(self.points - self.trajectory_starts, axis=-1) > self.drift_threshold
@@ -56,7 +56,7 @@ class MotionAnalyzer:
         self.previous_points = np.copy(self.points)
 
         ###### Trying Different classes from other file ##########
-        normalized_displacement = self.zscore_normalizer.normalize(displacement)
+        normalized_displacement = self.EMA_normalizer.normalize(displacement)
         avg_displacement = np.mean(normalized_displacement, axis=(0,1))
         self.trajectories.append(avg_displacement)
         return avg_displacement
@@ -108,7 +108,7 @@ class MotionAnalyzer:
         np.save(filename2, self.grid_points)
 
 class RealTimePeakAnalyzer:
-    def __init__(self, buffer_size=30, memory_size = 5):
+    def __init__(self, buffer_size=15, memory_size = 5):
         self.buffer_size = buffer_size
         self.data_buffer = np.zeros(self.buffer_size)
         self.all_con_peaks = []
@@ -123,8 +123,8 @@ class RealTimePeakAnalyzer:
         self.filtered_data = None
         self.smoothed_data = None
 
-    def butter_highpass(data, cutoff=2.8, fs=30, order=3):
-        nyq = 0.1 * fs
+    def butter_highpass(self, data, cutoff, fs, order=2):
+        nyq = 0.5 * fs
         normal_cutoff = cutoff/nyq
         print("this is this notmal cutoff: ", normal_cutoff)
         b, a = butter(order, normal_cutoff, btype='high', analog=False)
@@ -138,22 +138,23 @@ class RealTimePeakAnalyzer:
         # else:
             # Shift the data in the buffer to make space for the new data point
             self.data_buffer[:-1] = self.data_buffer[1:]
-            self.data_buffer[-1] = new_data_point
-            # self.dynamic_tyhreshold.update(new_data_point)
-            # threshold = self.dynamic_tyhreshold.get_threshold()
 
             # Filter the data
-            print("this is the data buffer: ", self.data_buffer, self.data_buffer.shape)
-            self.data_buffer = self.butter_highpass(self.data_buffer)
+            self.data_buffer = self.butter_highpass(self.data_buffer, cutoff = 10, fs = 30)
+
+            self.data_buffer[-1] = new_data_point
+            self.dynamic_tyhreshold.update(new_data_point)
+            threshold = self.dynamic_tyhreshold.get_threshold()
+            print('Peak Threshold: ', threshold)
             
             # Analyze peaks
-            concentric_peaks, _ = signal.find_peaks(-self.data_buffer, height=0.7, distance=min_distance, prominence=1)
+            concentric_peaks, _ = signal.find_peaks(-self.data_buffer, height=abs(threshold), distance=min_distance, prominence=0.5*threshold)
             print('Concentric peaks: ', concentric_peaks, '\n')
-            eccentric_peaks, _ = signal.find_peaks(self.data_buffer, height=0.7, distance=min_distance, prominence=1)
+            eccentric_peaks, _ = signal.find_peaks(self.data_buffer, height=abs(threshold), distance=min_distance, prominence=0.5*threshold)
             print('Eccentric peaks: ', eccentric_peaks, '\n')
 
             # Calculate the offset for absolute positioning
-            offset = self.processed_data_count - self.buffer_size +1
+            offset = max(0, self.processed_data_count - self.buffer_size +1)
             
             concentric_peaks_abs = [peak + offset for peak in concentric_peaks]
             eccentric_peaks_abs = [peak + offset for peak in eccentric_peaks]
