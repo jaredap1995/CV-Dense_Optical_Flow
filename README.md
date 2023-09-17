@@ -19,13 +19,13 @@
 
 ### Initial Rep Counting Prototype
 - The initial prototype can correctly calculate repetitions performed based on a modified Dense Optical Flow approach published by Wang et al., 2013. At a high level the approach
-        - Utilizes the OpenCV Farneback Dense Optical Flow to estimate movement of pixels from frame to frame
-        - Overlays a grid of keypoints over the image to downsample the frames
-        - Adds the dense optical flow calculations for each pixel to the closest keypoint to estimate movement within the area
-        - Averages all keypoint vectors in both the X and Y direction for the entire image turning the keypoint trajectories into a processable signal
-        - Uses a Exponential Moving Average (EMA) and high pass filter to clean the signal
-        - Uses scipy.find_peaks to get both the concentric and eccentric peaks for the movement (upward and downward motion)
-        - Interpretes these signal peaks as completed repetitions
+- Utilizes the OpenCV Farneback Dense Optical Flow to estimate movement of pixels from frame to frame
+- Overlays a grid of keypoints over the image to downsample the frames
+- Adds the dense optical flow calculations for each pixel to the closest keypoint to estimate movement within the area
+- Averages all keypoint vectors in both the X and Y direction for the entire image turning the keypoint trajectories into a processable signal
+- Uses a Exponential Moving Average (EMA) and high pass filter to clean the signal
+- Uses scipy.find_peaks to get both the concentric and eccentric peaks for the movement (upward and downward motion)
+- Interpretes these signal peaks as completed repetitions
 
 ### Issues
 - In the absence of movement the approach will erroneously create peaks (count repetitions) until a larger movement is detected.
