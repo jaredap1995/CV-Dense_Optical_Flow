@@ -4,6 +4,8 @@
 
 - ![RAFT of a Goblet Squat](./myapp/frames/output.png)
 
+- [First Demo](https://drive.google.com/file/d/1ixlRtpTq7VOQ8FmZCbVMSRtGUT5RS7eF/view)
+
 ## Inspirations for the project:
 - https://inria.hal.science/hal-00803241/file/IJCV.pdf
 - https://arxiv.org/abs/2003.12039
