@@ -145,8 +145,8 @@ def gen(request, camera):
                 b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
         else:
             print("Video stream ended.")
-            # peak_analyzer.save_peaks()
-            # analyzer.save_trajectories()
+            camera.peak_analyzer.save_peaks()
+            camera.analyzer.save_trajectories()
             break
             farneback = FarnebackProcessing()
 

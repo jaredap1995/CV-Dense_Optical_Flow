@@ -5,7 +5,7 @@ import pandas as pd
 from scipy.signal import butter, filtfilt
 
 class MotionAnalyzer:
-    def __init__(self, H, W, grid_size=8, max_length=20, drift_threshold=15, mag_buffer_size=30):
+    def __init__(self, H, W, grid_size=8, max_length=10, drift_threshold=15, mag_buffer_size=30):
         self.grid_size = grid_size
         self.max_length = max_length
         self.drift_threshold = drift_threshold
@@ -56,8 +56,9 @@ class MotionAnalyzer:
         self.previous_points = np.copy(self.points)
 
         ###### Trying Different classes from other file ##########
-        normalized_displacement = self.EMA_normalizer.normalize(displacement)
-        avg_displacement = np.mean(normalized_displacement, axis=(0,1))
+        # normalized_displacement = self.zscore_normalizer.normalize(displacement)
+        # normalized_displacement = self.min_max_scaler.normalize(normalized_displacement)
+        avg_displacement = np.mean(displacement, axis=(0,1))
         self.trajectories.append(avg_displacement)
         return avg_displacement
 
@@ -108,7 +109,7 @@ class MotionAnalyzer:
         np.save(filename2, self.grid_points)
 
 class RealTimePeakAnalyzer:
-    def __init__(self, buffer_size=15, memory_size = 5):
+    def __init__(self, buffer_size=30, memory_size = 5, warm_up_period=20):
         self.buffer_size = buffer_size
         self.data_buffer = np.zeros(self.buffer_size)
         self.all_con_peaks = []
@@ -116,55 +117,69 @@ class RealTimePeakAnalyzer:
         self.memory_size = memory_size
         self.recent_con_peaks = []
         self.recent_ecc_peaks = []
+        self.thresholds = []
         self.rep_counter = 0
         self.processed_data_count = 0
         self.dynamic_tyhreshold = DynamicPeakThreshold()
         self.sgf = SGFilter()
         self.filtered_data = None
         self.smoothed_data = None
+        self.final_data = []
+        self.warm_up_period = warm_up_period
+        self.threshold_factor = self.buffer_size
+        self.zscore_normalizer = ZScoreNormalizer()
+        self.normalized_data = []
 
     def butter_highpass(self, data, cutoff, fs, order=2):
         nyq = 0.5 * fs
         normal_cutoff = cutoff/nyq
-        print("this is this notmal cutoff: ", normal_cutoff)
         b, a = butter(order, normal_cutoff, btype='high', analog=False)
         y=filtfilt(b, a, data)
         return y
         
+    def get_threshold(self):
+        return self.threshold_factor * np.mean(self.filtered_data)
+        
     def analyze(self, new_data_point, min_distance = 25):
-        # if self.processed_data_count < self.buffer_size:
-        #     self.processed_data_count += 1
-        #     return None, None, None, None
-        # else:
+        if self.processed_data_count < self.buffer_size:
+            self.data_buffer[:-1] = self.data_buffer[1:]
+            self.data_buffer[-1] = new_data_point
+            self.processed_data_count +=1
+            return None, None, None, None
+        else:
             # Shift the data in the buffer to make space for the new data point
             self.data_buffer[:-1] = self.data_buffer[1:]
+            self.data_buffer[-1] = new_data_point
+            # self.normalized_data = self.zscore_normalizer.normalize(self.data_buffer)
+
+            print('old unfiltered final point: ', self.data_buffer[-1])
+            print('current data buffer pre-filter: ', self.normalized_data)
 
             # Filter the data
-            self.data_buffer = self.butter_highpass(self.data_buffer, cutoff = 10, fs = 30)
+            self.filtered_data = self.butter_highpass(self.data_buffer, cutoff = 6, fs = 30)
 
-            self.data_buffer[-1] = new_data_point
-            self.dynamic_tyhreshold.update(new_data_point)
-            threshold = self.dynamic_tyhreshold.get_threshold()
-            print('Peak Threshold: ', threshold)
-            
+            #Set Dynamic Peak threshold
+            print('new filtered data: ', self.filtered_data)
+            # self.dynamic_tyhreshold.update(self.data_buffer[-1])
+            threshold = self.get_threshold()
+            print('threshold: ', threshold)
+            self.thresholds.append(threshold)
+            self.final_data.append(self.data_buffer)
+        
             # Analyze peaks
-            concentric_peaks, _ = signal.find_peaks(-self.data_buffer, height=abs(threshold), distance=min_distance, prominence=0.5*threshold)
-            print('Concentric peaks: ', concentric_peaks, '\n')
-            eccentric_peaks, _ = signal.find_peaks(self.data_buffer, height=abs(threshold), distance=min_distance, prominence=0.5*threshold)
-            print('Eccentric peaks: ', eccentric_peaks, '\n')
+            concentric_peaks, _ = signal.find_peaks(-self.filtered_data, height=abs(threshold), distance=min_distance, prominence=.3)
+            eccentric_peaks, _ = signal.find_peaks(self.filtered_data, height=abs(threshold), distance=min_distance, prominence=.3)
 
             # Calculate the offset for absolute positioning
             offset = max(0, self.processed_data_count - self.buffer_size +1)
             
-            concentric_peaks_abs = [peak + offset for peak in concentric_peaks]
-            eccentric_peaks_abs = [peak + offset for peak in eccentric_peaks]
+            concentric_peaks_abs = [peak + offset for peak in concentric_peaks if peak + offset > self.buffer_size]
+            eccentric_peaks_abs = [peak + offset for peak in eccentric_peaks if peak + offset > self.buffer_size]
 
             # Filter the peaks that are too close to recent peaks
             concentric_peaks_abs = [p for p in concentric_peaks_abs if all(np.abs(p - rp) > min_distance for rp in self.recent_con_peaks)]
             eccentric_peaks_abs = [p for p in eccentric_peaks_abs if all(np.abs(p - rp) > min_distance for rp in self.recent_ecc_peaks)]
             
-            print('Concentric peaks abs: ', concentric_peaks_abs, '\n')
-            print('Eccentric peaks abs: ', eccentric_peaks_abs, '\n')
 
             # Update recent peaks
             self.recent_con_peaks = (self.recent_con_peaks + concentric_peaks_abs)[-self.memory_size:]
@@ -186,7 +201,9 @@ class RealTimePeakAnalyzer:
 
             return concentric_peaks, eccentric_peaks, concentric_peaks_abs, eccentric_peaks_abs
 
-    def save_peaks(self, filename_concentric="concentric_peaks.npy", filename_eccentric="eccentric_peaks.npy"): 
+    def save_peaks(self, filename_concentric="concentric_peaks.npy", filename_eccentric="eccentric_peaks.npy", file_thresholds = "thresholds.npy", file_final = 'data_buffers.npy', file_extend = 'extned_window.npy'): 
         np.save(filename_concentric, self.all_con_peaks)
         np.save(filename_eccentric, self.all_ecc_peaks)
-        # np.save(filename_concentric, self.recent_peaks)
+        np.save(file_thresholds, self.thresholds)
+        np.save(file_final, self.final_data)
+        np.save(file_extend, self.normalized_data)

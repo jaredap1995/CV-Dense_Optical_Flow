@@ -23,9 +23,10 @@ class ZScoreNormalizer:
         self.buffer_size = buffer_size
 
     def normalize(self, value):
-        self.buffer.append(value)
-        if len(self.buffer) > self.buffer_size:
-            self.buffer.pop(0)
+        # self.buffer.append(value)
+        # if len(self.buffer) > self.buffer_size:
+        #     self.buffer.pop(0)
+        self.buffer.extend(value)
         mean = np.mean(self.buffer)
         std = np.std(self.buffer)
 
@@ -62,13 +63,14 @@ class SGFilter:
         return savgol_filter(data, self.window_length, self.polyorder)
     
 class DynamicPeakThreshold:
-    def __init__(self, windoew_size = 15, factor = 2.5):
+    def __init__(self, windoew_size = 15, factor = 1.5):
         self.window_size = windoew_size
         self.factor = factor
         self.data_buffer = []
 
     def update(self, value):
         self.data_buffer.append(value)
+        print('in update function post high pass filter: ', self.data_buffer)
         if len(self.data_buffer) > self.window_size:
             self.data_buffer.pop(0)
         

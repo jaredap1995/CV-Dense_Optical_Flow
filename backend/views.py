@@ -4,6 +4,8 @@ from django.http import StreamingHttpResponse
 from .camera import *
 from django.http import Http404
 from django.http import JsonResponse
+from rest_framework.response import Response
+from rest_framework.decorators import api_view
 
 cam = VideoCamera()
 
@@ -19,14 +21,12 @@ def livefe(request):
 def index(request, *args, **kwargs):
     return render(request, 'home.html')
 
-
+@api_view(['GET'])
 def rep_count(request):
     try:
         time.sleep(1)
-        print('hello')
         rep = cam.fetch_reps()
-        print(rep)
-        return JsonResponse({'rep_count': rep})
-    except:
-        raise Http404('Error fetching rep count')
-
+        return Response({'rep_count': rep})
+    except Exception as e:
+        return Response({'error': str(e)}, status=500)
+    

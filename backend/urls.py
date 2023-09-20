@@ -15,6 +15,6 @@ from .views import *
 
 urlpatterns = [
     path('', index),
-        path('/camera', livefe, name="live_camera"),
-        path('rep_count', rep_count, name="rep_count"),
+        path('camera', livefe, name="live_camera"),
+        path('api/rep_count', rep_count, name="rep_count"),
     ]
