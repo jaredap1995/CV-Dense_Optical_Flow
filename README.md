@@ -2,7 +2,7 @@
 
 - This project aims to analyze exercise movements using dense optical flows calculated with the RAFT and Farneback algorithms. The analysis includes the development of motion trajectories, calculation of repetitions, and estimation of velocity and force responses.
 
-- ![RAFT of a Goblet Squat](./backend/frames/output.png)
+- ![RAFT of a Goblet Squat](./myapp/frames/output.png)
 
 - [First Demo](https://drive.google.com/file/d/1ixlRtpTq7VOQ8FmZCbVMSRtGUT5RS7eF/view)
 
