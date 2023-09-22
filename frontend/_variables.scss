@@ -1,0 +1,42 @@
+
+
+// Default variables
+$primary-grey: #2e2e2e;
+$primary-purple: #6C41A6;
+$subtle-grey: #a1a1a1;
+$font-bold: 700;
+$font-semi-bold: 600;
+$font-regular: 400;
+$font-light: 300;
+
+$mobile-break: 740px;
+$desktop-break: 1278px;
+
+$navbar-height: 100px;
+// $footer-height: 282px;
+$main-height: calc(100vh - #{$navbar-height});
+
+// Mixins
+@mixin center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+:export {
+  primary-grey: $primary-grey;
+  subtle-grey: $subtle-grey;
+  font-bold: $font-bold;
+  font-semi-bold: $font-semi-bold;
+  font-regular: $font-regular;
+  font-light: $font-light;
+
+  mobile-break: $mobile-break;
+  desktop-break: $desktop-break;
+
+  navbar-height: $navbar-height;
+  // footer-height: $footer-height;
+  main-height: $main-height;
+
+  center: center;
+}

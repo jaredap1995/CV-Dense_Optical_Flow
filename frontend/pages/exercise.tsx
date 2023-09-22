@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react';
+import styles from './exercise.module.scss'
 
 const Exercises = () => {
     const [repCount, setRepCount] = useState(0);
@@ -24,8 +25,8 @@ const Exercises = () => {
 
     return (
         <div>
-            <img src="http://127.0.0.1:8000/camera" />
-            <h1 id = "repCount"> Reps: {repCount}</h1>
+            <img src="http://127.0.0.1:8000/camera" className={styles.videoStream}/>
+            <h1 className={styles.repCount}> Reps: {repCount}</h1>
         </div>
     )
 }

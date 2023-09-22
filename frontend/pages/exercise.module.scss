@@ -1,0 +1,22 @@
+// @import 'variables'
+
+.videoStream {
+    // padding-top: 20px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    border-radius: 10px;
+    overflow: hidden;
+    // padding: 10px;
+    height: 420px;
+    width: 528px;
+    flex: 1;
+    // float: right;
+}
+
+.repCount{
+    color: black;
+    font: inherit;
+    font-size: 2rem;
+    padding-top: 20px;
+    text-align: center;
+
+}
