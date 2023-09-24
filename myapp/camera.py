@@ -64,6 +64,7 @@ class VideoCamera(object):
         self.start_time = time.time()
         self.record_time = 8
         self.generator = None
+        self.traj = None
 
     def __del__(self):
         self.video.release()
@@ -121,12 +122,17 @@ class VideoCamera(object):
             con_peak, ecc_peak, _, _ = self.peak_analyzer.analyze(rep[1])
             print('rep counter test: ', self.peak_analyzer.rep_counter)
             self.current_rep_count = self.peak_analyzer.rep_counter
+            self.traj = rep[1]
         else:
             self.peak_analyzer.save_peaks()
             self.analyzer.save_trajectories()
+        
 
     def fetch_reps(self):
         return self.current_rep_count
+    
+    def fetch_signal(self):
+        return self.traj
             
 
 def gen(request, camera):

@@ -138,7 +138,7 @@ class RealTimePeakAnalyzer:
         return y
         
     def get_threshold(self):
-        return self.threshold_factor * np.mean(self.filtered_data)
+        return self.threshold_factor * np.mean(self.data_buffer)
         
     def analyze(self, new_data_point, min_distance = 25):
         if self.processed_data_count < self.buffer_size:
@@ -152,23 +152,16 @@ class RealTimePeakAnalyzer:
             self.data_buffer[-1] = new_data_point
             # self.normalized_data = self.zscore_normalizer.normalize(self.data_buffer)
 
-            print('old unfiltered final point: ', self.data_buffer[-1])
-            print('current data buffer pre-filter: ', self.normalized_data)
 
             # Filter the data
-            self.filtered_data = self.butter_highpass(self.data_buffer, cutoff = 6, fs = 30)
+            # self.filtered_data = self.butter_highpass(self.data_buffer, cutoff = 6, fs = 30)
 
             #Set Dynamic Peak threshold
-            print('new filtered data: ', self.filtered_data)
-            # self.dynamic_tyhreshold.update(self.data_buffer[-1])
             threshold = self.get_threshold()
-            print('threshold: ', threshold)
-            self.thresholds.append(threshold)
-            self.final_data.append(self.data_buffer)
         
             # Analyze peaks
-            concentric_peaks, _ = signal.find_peaks(-self.filtered_data, height=abs(threshold), distance=min_distance, prominence=.3)
-            eccentric_peaks, _ = signal.find_peaks(self.filtered_data, height=abs(threshold), distance=min_distance, prominence=.3)
+            concentric_peaks, _ = signal.find_peaks(-self.data_buffer, height=abs(threshold), distance=min_distance, prominence=.3)
+            eccentric_peaks, _ = signal.find_peaks(self.data_buffer, height=abs(threshold), distance=min_distance, prominence=.3)
 
             # Calculate the offset for absolute positioning
             offset = max(0, self.processed_data_count - self.buffer_size +1)

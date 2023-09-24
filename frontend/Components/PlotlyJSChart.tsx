@@ -5,24 +5,38 @@ import styles from './graph.module.scss'
 const Plot = createPlotlyComponent(Plotly);
 
 import { useState, useEffect } from 'react';
+import { error } from 'console';
 
 const PlotlyGraph = ()=> {
     const [ xData, setxData ] = useState <Number[]> ([]);
     const [yData, setyData] = useState<Number[]>([]);
 
     useEffect(() => {
-        let x = 0;
-        setInterval(()=> {
-            x+=0.1;
-            setxData(prev => [...prev, x])
-            setyData(prev => [...prev, Math.sin(x)])
 
-            if(xData.length > 100) {
-                setxData(prev => prev.slice(1));
-                setyData(prev => prev.slice(1));
-            }
-        }, 100)
-    }, [])
+        const eventSource = new EventSource('http://127.0.0.1:8000/sse/');
+        eventSource.onmessage = (event) => {
+                const data = JSON.parse(event.data)
+
+                setxData(prevXData => [...prevXData, data.x]);
+                setyData(prevYData => [...prevYData, data.y]);
+
+                const maxDataPoints = 100;
+                if (xData.length > maxDataPoints) {
+                    setxData(prevXData => prevXData.slice(-maxDataPoints));
+                    setyData(prevYData => prevYData.slice(-maxDataPoints))
+                }
+        }
+
+        eventSource.onerror = (event) => {
+            console.error('EventSource failed: ', event);
+            eventSource.close();
+        }
+
+
+        return () => {
+            eventSource.close();
+        }
+    }, [xData]);
 
     return (
         <Plot
@@ -35,7 +49,7 @@ const PlotlyGraph = ()=> {
                     line: {color: 'blue'}
                 }
             ]}
-            layout = {{width: 680, height: 540, title: 'Dynamic Sine Wave'}}
+            layout = {{width: 680, height: 540, title: 'Signal'}}
             className={styles.graph}
         />
     )

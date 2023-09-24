@@ -17,4 +17,5 @@ urlpatterns = [
     path('', index),
         path('camera', livefe, name="live_camera"),
         path('api/rep_count', rep_count, name="rep_count"),
+        path('sse/', sse_view, name="sse")
     ]
