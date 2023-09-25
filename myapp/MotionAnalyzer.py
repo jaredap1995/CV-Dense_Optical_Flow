@@ -158,10 +158,11 @@ class RealTimePeakAnalyzer:
 
             #Set Dynamic Peak threshold
             threshold = self.get_threshold()
+            print('threshold: ', threshold)
         
             # Analyze peaks
-            concentric_peaks, _ = signal.find_peaks(-self.data_buffer, height=abs(threshold), distance=min_distance, prominence=.3)
-            eccentric_peaks, _ = signal.find_peaks(self.data_buffer, height=abs(threshold), distance=min_distance, prominence=.3)
+            concentric_peaks, _ = signal.find_peaks(-self.data_buffer, height=abs(threshold), distance=min_distance, prominence=1)
+            eccentric_peaks, _ = signal.find_peaks(self.data_buffer, height=abs(threshold), distance=min_distance, prominence=1)
 
             # Calculate the offset for absolute positioning
             offset = max(0, self.processed_data_count - self.buffer_size +1)

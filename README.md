@@ -4,6 +4,9 @@
 
 - ![RAFT of a Goblet Squat](./myapp/frames/output.png)
 
+
+- ![Keypoint Signal](./myapp/frames/signal.png)
+
 - [First Demo](https://drive.google.com/file/d/1ixlRtpTq7VOQ8FmZCbVMSRtGUT5RS7eF/view)
 
 ## Inspirations for the project:
