@@ -1,0 +1,31 @@
+@import '_variables.scss';
+
+.columnContainer {
+    width: 100%;
+    transition: opacity 1s;
+    background-color: #fff;
+    opacity: 1;
+}
+    
+    @media screen and (min-width: $mobile-break) {
+        .leftColumn {
+            width: 20%;
+            display: inline-block;
+            font-size: 1.2rem;
+            vertical-align: top;
+        }
+
+        .rightColumn {
+            width: 79%;
+            display: inline-block;
+        }
+    }
+    
+    @media screen and (max-width: $mobile-break) {
+        .leftColumn {
+            margin-bottom: 12px;
+            font-size: 1.2rem;
+            vertical-align: top;
+        }
+    }
+

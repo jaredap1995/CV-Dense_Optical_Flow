@@ -1,6 +1,7 @@
 
 
 // Default variables
+
 $primary-grey: #2e2e2e;
 $primary-purple: #6C41A6;
 $subtle-grey: #a1a1a1;
@@ -15,6 +16,8 @@ $desktop-break: 1278px;
 $navbar-height: 100px;
 // $footer-height: 282px;
 $main-height: calc(100vh - #{$navbar-height});
+
+$background-color: #f5f5f5;
 
 // Mixins
 @mixin center {

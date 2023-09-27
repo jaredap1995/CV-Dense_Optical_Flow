@@ -26,8 +26,8 @@ const Navigation = () => {
         <h1 className={styles.header}>Workout Counter and Fatigue Predictor</h1>
         <ul>
             <li>
-                <Link href = {"/about"} className={styles.navLink}>
-                    About the Project
+                <Link href = {"/history"} className={styles.navLink}>
+                    Explore other Work
                 </Link>
             </li>
         </ul>
