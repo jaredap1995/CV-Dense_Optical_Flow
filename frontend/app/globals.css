@@ -1,6 +1,4 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+/* @import '.../_variables.scss'; */
 
 :root {
   --foreground-rgb: 0, 0, 0;
@@ -17,11 +15,10 @@
 }
 
 body {
-  color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
+  background-color: #1a1a1a;
+}
+
+ 
+ html {
+       scroll-behavior: smooth;
 }

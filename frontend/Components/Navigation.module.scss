@@ -1,81 +1,65 @@
-@import 'variables.scss';
+@import '_variables.scss';
 
-.navigation {
-  width: 100%;
-  background-color: #f5f5f5;
-  height: $navbar-height;
-  padding-top: 24px;
-  display: flex;
-  justify-content: space-between;
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    background-color: rgba(0, 0, 0, 0); // One of the colors from your palette
+}
 
-  h1{
-    text-align: center;
-    margin-bottom: 2rem;
-    font-weight: 500;
-    font-size: 2rem;
-    color: #333;
-    padding-left: 30px;
-  }
-  ul {
-    margin-top: 16px;
+.grid {
+    display: flex;
+    align-items: center;
+}
+
+.logo img {
+    height: 75px;
+    width: 100px;
+}
+
+nav .menu {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
 
     li {
-      display: inline-block;
-      font-size: 1.4rem; 
-
-      .navLink {
-        text-decoration: none;
-        color: black;
-        padding: 8px 12px; 
-        border-radius: 8px; 
-        transition: background-color 0.3s ease-in-out; // Smooth transition
-
-        &:hover,
-        &:active {
-          background-color: rgba(0, 0, 0, 0.2); 
-        }
-      }
-
-      &:not(:last-child) {
-        margin-right: 24px;
-      }
+        margin: 0 40px;
+        font-size: 2rem;
     }
-  }
 
-  .icon {
-    margin-right: auto;
-    font-size: 1.5rem; 
-    transition: transform 0.3s ease-in-out; // 
-    
+    a {
+        text-decoration: none;
+        color: white; // One of the colors from your palette
+        padding: 5px 10px;
+        border-radius: 5px;
+        transition: background-color 0.3s;
+
+        &:hover {
+          background-color: #aafe00 ; // One of the colors from your palette
+        }
+    }
+}
+
+.actionButtons {
+    cursor: pointer;
+    color: #15151b;
+    background: linear-gradient(#b632fa, #487fee);
+    border-radius: 26px;
+    width: 172px;
+    height: 52px;
+    padding: 0;
+    font-family: inherit;
+    font-size: 16px;
+    font-weight: 800;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
 
     &:hover {
-      cursor: pointer;
-      transform: scale(1.1); // Hover effect: icon gets slightly bigger
-    }
-  }
-}
-
-@media screen and (min-width: $desktop-break) {
-  .navigation {
-    margin: 0;
-    width: 100%;
-  }
-}
-
-@media screen and (min-width: $mobile-break) and (max-width: $desktop-break) {
-  .navigation {
-    margin: 0;
-    width: 100%;
-  }
-}
-
-@media screen and (max-width: $mobile-break) {
-  .navigation {
-    margin: 0;
-    width: 100%;
-
-    ul {
-      margin-right: 8px;
-    }
+      background-color: linear-gradient(to left,  #b632fa, #487fee); 
   }
 }

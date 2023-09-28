@@ -4,36 +4,55 @@ import Link from 'next/link';
 import Image from "next/image";
 import { useRouter } from 'next/router';
 
-
 const LOGO = '/logo/jp_logo.png';
 
 const Navigation = () => {
     const router = useRouter();
 
-    //Enter the routers and links for everything else
+    const aboutEvent = router.pathname === '/' ? "#about" : '/#about';
 
     return (
-        <nav className={styles.navigation}>
-        <Link passHref={true} href="/">
-            <Image 
-                className={styles.icon}
-                src={LOGO}
-                height="100"
-                width="100"
-                alt="website logo"
-                />
-        </Link>
-        <h1 className={styles.header}>Workout Counter and Fatigue Predictor</h1>
-        <ul>
-            <li>
-                <Link href = {"/history"} className={styles.navLink}>
-                    Explore other Work
+        <header className={styles.header}>
+
+                <Link className={styles.logo} href="/">
+                        <Image 
+                            src={LOGO}
+                            height="100"
+                            width="100"
+                            alt="website logo"
+                        />
                 </Link>
-            </li>
-        </ul>
-        </nav>
+
+                <nav>
+                    <ul className={styles.menu}>
+                        <li>
+                            <Link href={aboutEvent}>
+                                About
+                            </Link>
+                            {/* Add sub-menu items here */}
+                        </li>
+                        <li>
+                            <Link href="/history">
+                                History
+                            </Link>
+                            {/* Add sub-menu items here */}
+                        </li>
+                        <li>
+                            <Link href="/team">
+                                Team
+                            </Link>
+                            {/* Add sub-menu items here */}
+                        </li>
+                    </ul>
+                </nav>
+
+                <div className={styles.actionButtons}>
+                    <Link href="/app">
+                        Demo 
+                    </Link>
+                </div>
+        </header>
     );
 };
 
 export default Navigation;
-

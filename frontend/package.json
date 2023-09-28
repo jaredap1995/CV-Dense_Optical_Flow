@@ -16,6 +16,7 @@
     "autoprefixer": "10.4.15",
     "eslint": "8.49.0",
     "eslint-config-next": "13.4.19",
+    "jquery": "^3.7.1",
     "next": "13.4.19",
     "plotly.js-dist": "^2.26.0",
     "plotly.js-dist-min": "^2.26.0",
@@ -28,6 +29,7 @@
     "typescript": "5.2.2"
   },
   "devDependencies": {
+    "@types/jquery": "^3.5.20",
     "@types/react-plotly.js": "^2.6.0",
     "@types/react-transition-group": "^4.4.7"
   }
