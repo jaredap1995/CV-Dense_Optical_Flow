@@ -1,18 +1,40 @@
-import React from "react";
+import React, { useEffect } from "react";
 import styles from './Navigation.module.scss';
 import Link from 'next/link';
 import Image from "next/image";
 import { useRouter } from 'next/router';
+import { useState } from 'react'
 
-const LOGO = '/logo/jp_logo.png';
+
+const LOGO = '/logo/logo2.png';
+
 
 const Navigation = () => {
     const router = useRouter();
 
     const aboutEvent = router.pathname === '/' ? "#about" : '/#about';
 
+    const [isScrolled, setIsScrolled] = useState(false);
+
+    useEffect(() => {
+        const handleScroll = () => {
+            if (window.scrollY>50){
+                setIsScrolled(true)
+            } else {
+                setIsScrolled(false)
+            }
+        };
+
+        window.addEventListener('scroll', handleScroll);
+
+        return () => {
+            window.removeEventListener('scroll', handleScroll)
+        }
+
+    }, [])
+
     return (
-        <header className={styles.header}>
+        <header className={ `${styles.header} ${isScrolled ? styles.scrolled: ''}`}>
 
                 <Link className={styles.logo} href="/">
                         <Image 
@@ -46,10 +68,10 @@ const Navigation = () => {
                     </ul>
                 </nav>
 
-                <div className={styles.actionButtons}>
-                    <Link href="/app">
-                        Demo 
-                    </Link>
+                <div className={`${styles.actionButtons}`}>
+                        <Link className={`${styles.fullSizeLink} ${styles.shimmerEffect}`} href="/app">
+                            Demo 
+                        </Link>
                 </div>
         </header>
     );

@@ -1,11 +1,25 @@
 @import '_variables.scss';
 
+
 .header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 10px 20px;
-    background-color: rgba(0, 0, 0, 0); // One of the colors from your palette
+    background-color: transparent; 
+    position: sticky;
+    top: -100px;
+    z-index: 1000;
+    transition: top 0.3s ease, opacity 0.3s ease;
+    opacity: 0;
+
+
+}
+
+.header.scrolled {
+    background-color: rgba(0, 0, 0, 0.9); 
+    top: 0; 
+    opacity: 1;
 }
 
 .grid {
@@ -13,9 +27,20 @@
     align-items: center;
 }
 
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+
 .logo img {
     height: 75px;
     width: 100px;
+    animation: spin 10s linear infinite;
 }
 
 nav .menu {
@@ -37,15 +62,35 @@ nav .menu {
         transition: background-color 0.3s;
 
         &:hover {
-          background-color: #aafe00 ; // One of the colors from your palette
+          background: linear-gradient(#b632fa, #487fee) ; // One of the colors from your palette
         }
     }
 }
 
+@keyframes shimmer {
+    0% {
+      background-position: -100% 0;
+    }
+    100% {
+      background-position: 100% 0;
+    }
+  }
+  
+  .shimmerEffect {
+    background: linear-gradient(
+      to right,
+      #3a6fda 25%,   
+      #5790e7 50%,   
+      #3a6fda 100% 
+    );
+    background-size: 200% 100%;
+    animation: shimmer 2s infinite;
+  }
+
 .actionButtons {
     cursor: pointer;
     color: #15151b;
-    background: linear-gradient(#b632fa, #487fee);
+    background: linear-gradient(#4a8fe7, #6db2f3);
     border-radius: 26px;
     width: 172px;
     height: 52px;
@@ -59,7 +104,14 @@ nav .menu {
     justify-content: center;
     position: relative;
 
-    &:hover {
-      background-color: linear-gradient(to left,  #b632fa, #487fee); 
+    .fullSizeLink {
+      display: block;
+      width: 100%;
+      height: 100%;
+      text-align: center;
+      line-height: 52px;  // This should be the same as your button height to vertically center the text
+      color: black;     // Inherit the color of the parent (button)
+      text-decoration: none;
   }
+  
 }

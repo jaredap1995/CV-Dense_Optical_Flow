@@ -1,51 +1,56 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styles from './index.module.scss';
 import { useEffect } from 'react';
 import $ from "jquery";
+import AOS from 'aos';
+import 'aos/dist/aos.css';
+
 
 const LandingPage: React.FC = () => {
 
+    const [currentH1, setCurrentH1] = useState(0);
+    const h1Texts = ['Welcome to Fitcam', 'A New Frontier for Exercise and Computer Vision', 'Pure Human Machine Integration']
 
-    useEffect(() => {
-            $.ajax({
-                url: 'https://player.vimeo.com/video/847717382?background=1&autoplay=1&loop=1&byline=0&title=0',
-                type: 'GET',
-                dataType: 'html',
-                success: function(response: string) {
-                    $('.vimeo-wrapper').html(response);
-                },
-                error: function(xhr: JQuery.jqXHR, status: string, error: string) {
-                    console.log(xhr.responseText);
-                }
+        useEffect(()=> {
+            const interval = setInterval(() => {
+                setCurrentH1((prevIndex) => (prevIndex+1) % h1Texts.length);
+            },8000)
+
+            return () => { clearInterval(interval)}
+        }, [])
+
+        useEffect(() => {
+            AOS.init({
+              duration: 800, 
             });
-
-        },[]);
+          }, []);
 
     return (
         <div className={styles.container}>
 
             {/* Full-Screen Hero Image */}
             <section className={styles.heroSection}>
-                <img src="./sparse.gif" alt="Computer Vision" className={styles.heroImage} /> 
-                <h1>Explore the History of Computer Vision in Exercise and Health</h1> {/*Change for later */}
-                <p>Try out our new app and explore the evolution of computer vision in health and exercise.</p>
+                <img src="./gif_3.gif" alt="Computer Vision" className={styles.heroImage} /> 
+                <div className={styles.centeredContainer}>
+                    <h1 className={styles.h1Carousel}>{h1Texts[currentH1]}</h1>
+                </div>
             </section>
 
             {/* Interactive Elements */}
-            <section className={styles.interactiveSection}>
+            <section id='about' className={styles.interactiveSection}>
                         <article>
-                        <h2>Real Time Velocity and Force Estimations</h2>
+                        <h2 data-aos="fade-down"> Real Time Velocity and Force Estimations</h2>
                         <ul>
-                            <li className={styles.list}>Accurately identifies and analyzes your movements and the change in keypoint velocity across a live video stream</li>
-                            <li className={styles.list}>Provides immediate feedback to autoregulate your exercises and terminate your sets.</li>
-                            <li className={styles.list}> Work Smarter! Not Harder! </li>
+                            <li data-aos="fade-right" className={styles.list}>Accurately identifies and analyzes your movements and the change in keypoint velocity across a live video stream</li>
+                            <li data-aos="fade-right" className={styles.list}>Provides immediate feedback to autoregulate your exercises and terminate your sets.</li>
+                            <li data-aos="fade-right" className={styles.list}> Work Smarter! Not Harder! </li>
                         </ul>
                         </article>
                         <img src="./optical_flow.gif" alt="Feature 1" />
             </section>
 
             {/* Parallax Section (This will require additional JS and CSS for the full effect) */}
-            <section id='about' className={styles.aboutSection}>
+            <section className={styles.aboutSection}>
                 <div className={styles.parallaxContent}>
                     <h2>Discover Innovations</h2>
                     <p>Learn about the breakthroughs and innovations that have shaped the world of computer vision in health and exercise.</p>

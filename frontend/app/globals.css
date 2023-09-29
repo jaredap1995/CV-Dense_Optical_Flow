@@ -14,11 +14,15 @@
   }
 }
 
-body {
-  background-color: #1a1a1a;
+body, html {
+  background-color: black;
+  font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+  scroll-behavior: smooth;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+
 }
 
  
- html {
-       scroll-behavior: smooth;
-}
+
