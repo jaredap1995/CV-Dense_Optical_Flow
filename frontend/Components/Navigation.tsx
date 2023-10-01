@@ -14,6 +14,9 @@ const Navigation = () => {
 
     const aboutEvent = router.pathname === '/' ? "#about" : '/#about';
 
+    const currentPage = router.pathname
+    console.log(currentPage)
+
     const [isScrolled, setIsScrolled] = useState(false);
 
     useEffect(() => {
@@ -34,7 +37,7 @@ const Navigation = () => {
     }, [])
 
     return (
-        <header className={ `${styles.header} ${isScrolled ? styles.scrolled: ''}`}>
+        <header className={ `${styles.navBar} ${isScrolled ? styles.scrolled: ''}`}>
 
                 <Link className={styles.logo} href="/">
                         <Image 
@@ -54,7 +57,7 @@ const Navigation = () => {
                             {/* Add sub-menu items here */}
                         </li>
                         <li>
-                            <Link href="/history">
+                            <Link className={`navlink ${currentPage === "/history" ? "active" : ""}`} href="/history">
                                 History
                             </Link>
                             {/* Add sub-menu items here */}

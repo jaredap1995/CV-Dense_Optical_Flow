@@ -24,20 +24,26 @@ const InteractiveTimeline: React.FC = () => {
     return (
         <div className={styles.timelineContainer}>
             <div className={styles.timeline}>
-                {CVHistory.map((item, index) => (
-                    <div key={index} className={styles.timelineEvent}>
-                    <button className={styles.dot} data-index={index} onClick={handleDotClick}></button>
-                        <div className={styles.eventDetails}>
-                            {item.description} <br></br><br></br>
-                            <img src={item.imageURL} alt={item.altText}></img>
-                        </div>
-                        <div className={styles.eventDate}>
-                            {item.date}
-                        </div>
+            {CVHistory.map((item, index) => (
+            <div key={index} className={styles.timelineEvent}>
+                <div className={styles.eventDate}>
+                    <div className={styles.textBox}>
+                        <p>{item.date}</p>
+                        <p> | </p>
+                        <p>{item.brand}</p>
                     </div>
-                ))}
+                    <div className={styles.textBox2}>
+                        <p>{item.description}</p>
+                    </div>
+                </div>
+                <div className={styles.eventDetails}>
+                    <img src={item.imageURL} alt={item.altText} />
+                </div>
             </div>
-        </div>
+        ))}
+    </div>
+</div>
+
     );
 }
 

@@ -25,12 +25,13 @@ $primary-dark: #3B5C7A;
 
 .container {
     margin: 0 auto;
-    padding: 0 200px;  
     background: #000000;
     box-shadow: 0px 0px 0px rgb(0, 0, 0,0);
     border-radius: 30px;
-    height: 100vh;
-}
+    height: 100%;
+    overflow-y: scroll;
+    overflow-x: hidden;
+
 
 .heroSection {
     position: relative;
@@ -39,10 +40,10 @@ $primary-dark: #3B5C7A;
     width: 100%;
 
     .heroImage {
-        width: 100%;
+        width: 70%;
         height: 100%;
         object-fit: cover;
-        opacity: 0.9;
+        opacity: 1;
     }
 
     .centeredContainer{
@@ -152,7 +153,7 @@ $primary-dark: #3B5C7A;
 
 .newsletterSection {
     background-color: black;
-    padding: 50px 0;
+    padding-bottom: 100px;
     text-align: center;
 
     h2, p {
@@ -178,10 +179,8 @@ $primary-dark: #3B5C7A;
             border-radius: 20px;
             cursor: pointer;
             transition: background-color 0.3s;
-
-            &:hover {
-                background-color: darken($accent, 10%);
-            }
         }
     }
+}
+
 }

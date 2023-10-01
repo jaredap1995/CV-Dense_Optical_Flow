@@ -28,7 +28,6 @@ const LandingPage: React.FC = () => {
     return (
         <div className={styles.container}>
 
-            {/* Full-Screen Hero Image */}
             <section className={styles.heroSection}>
                 <img src="./gif_3.gif" alt="Computer Vision" className={styles.heroImage} /> 
                 <div className={styles.centeredContainer}>
