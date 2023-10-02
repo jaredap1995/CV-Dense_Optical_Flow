@@ -9,7 +9,7 @@ import 'aos/dist/aos.css';
 const LandingPage: React.FC = () => {
 
     const [currentH1, setCurrentH1] = useState(0);
-    const h1Texts = ['Welcome to Fitcam', 'A New Frontier for Exercise and Computer Vision', 'Pure Human Machine Integration']
+    const h1Texts = ['Welcome to Strength', 'A New Frontier for Computer Vision and Human Behavior', 'Pure Human Machine Integration']
 
         useEffect(()=> {
             const interval = setInterval(() => {

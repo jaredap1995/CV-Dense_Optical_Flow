@@ -1,7 +1,7 @@
 import React from "react";
 import CVHistory from "@/data/data";
 import styles from './InteractiveTimeline.module.scss';
-import { dot } from "node:test/reporters";
+import Link from "next/link";
 
 
 const InteractiveTimeline: React.FC = () => {
@@ -34,6 +34,11 @@ const InteractiveTimeline: React.FC = () => {
                     </div>
                     <div className={styles.textBox2}>
                         <p>{item.description}</p>
+                    </div>
+                    <div>
+                        <Link href='/article1' className={styles.mediaLink}>
+                            Read The Article
+                        </Link>
                     </div>
                 </div>
                 <div className={styles.eventDetails}>

@@ -45,6 +45,21 @@
                     font-size: 20px;
                     font-weight: 800;
                 }
+
+                .mediaLink {
+                    font-weight: 400;
+                    color: white;
+                    letter-spacing: .01em;
+                    line-height: 1.5;
+                    text-decoration: none;
+                    opacity: 1;
+                    cursor: pointer;
+
+                    &:hover {
+                        transition: opacity 0.5 ease;
+                        opacity: 0.8;
+                    }
+                }
             }
 
             .eventDetails { //element on right
@@ -93,10 +108,25 @@
                 font-size: 20px;
                 font-weight: 800;
             }
+
+
+            .mediaLink {
+                font-weight: 400;
+                color: black;
+                letter-spacing: .01em;
+                line-height: 1.5;
+                text-decoration: none;
+                opacity: 1;
+                cursor: pointer;
+
+                &:hover {
+                    transition: opacity 0.5 ease;
+                    opacity: 0.3;
+                }
+            }
         }
 
         .eventDetails { //element on right
-            background-color: red;
             height: 100%;
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
             order: 1;

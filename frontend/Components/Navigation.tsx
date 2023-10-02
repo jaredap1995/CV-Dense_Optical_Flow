@@ -54,19 +54,21 @@ const Navigation = () => {
                             <Link href={aboutEvent}>
                                 About
                             </Link>
-                            {/* Add sub-menu items here */}
                         </li>
                         <li>
                             <Link className={`navlink ${currentPage === "/history" ? "active" : ""}`} href="/history">
-                                History
+                                Media
                             </Link>
-                            {/* Add sub-menu items here */}
                         </li>
                         <li>
                             <Link href="/team">
                                 Team
                             </Link>
-                            {/* Add sub-menu items here */}
+                        </li>
+                        <li>
+                            <Link href="/mission">
+                                Mission
+                            </Link>
                         </li>
                     </ul>
                 </nav>
