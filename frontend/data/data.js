@@ -1,10 +1,12 @@
+import slugify from "slugify";
+
 const CVHistory = [
     {
         "date": "2023-September-25",
-        "description": "Strong releases its Flagship Computer Vision product.",
+        "description": "Strong releases its Flagship Computer Vision product",
         "imageURL": "../waves.gif",
         "altText": "First CV in Exercise",
-        "brand": "StRoNg News"
+        "brand": "StRoNg News",
     },
     {
         "date": "2023-09-25",

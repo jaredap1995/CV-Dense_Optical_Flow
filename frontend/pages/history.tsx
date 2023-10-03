@@ -4,11 +4,11 @@ import React from 'react';
 import InteractiveTimeline from '@/Components/InteractiveTimeline';
 
 
-const about: React.FC = () => {
+const history: React.FC = () => {
 
     return (
         <InteractiveTimeline />          
     )
 }
 
-export default about;
+export default history;

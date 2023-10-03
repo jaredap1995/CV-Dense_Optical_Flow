@@ -5,7 +5,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background-color: transparent; 
+    background-color: black; 
     position: fixed;
     width: 100%;
     bottom: 0;
@@ -13,12 +13,34 @@
     z-index: 1000;
     transition: bottom 0.3s ease, opacity 0.3s ease;
     opacity: 1;
+
+    &::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 0.5px;
+      background: linear-gradient(#4a8fe7, #6db2f3);
+      z-index: 1;
+    }
 }
 
 .navBar.scrolled {
     background-color: rgba(0, 0, 0, 1); 
     bottom: 0; 
     opacity: 1;
+    
+    &::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 0.5px;
+      background: linear-gradient(#4a8fe7, #6db2f3);
+      z-index: 1;
+    }
 }
 
 .grid {

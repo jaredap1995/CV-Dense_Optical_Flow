@@ -2,24 +2,12 @@ import React from "react";
 import CVHistory from "@/data/data";
 import styles from './InteractiveTimeline.module.scss';
 import Link from "next/link";
+import slugify from 'slugify';
 
 
 const InteractiveTimeline: React.FC = () => {
 
-
-    const handleDotClick = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-        const dotElement = event.currentTarget;
-        console.log(dotElement)
-    
-        dotElement.scrollIntoView({
-            behavior: 'smooth',
-            block: 'center'
-        });
-    
-        console.log('scrolled to: ', dotElement.getAttribute('data-index'));
-    };
-    
-    
+    const slugs = CVHistory.map(obj => slugify(obj.description))
 
     return (
         <div className={styles.timelineContainer}>
@@ -36,7 +24,7 @@ const InteractiveTimeline: React.FC = () => {
                         <p>{item.description}</p>
                     </div>
                     <div>
-                        <Link href='/article1' className={styles.mediaLink}>
+                        <Link href={`/newsArticles/[article]`} as={`/newsArticles/${slugs[index]}`} className={styles.mediaLink}>
                             Read The Article
                         </Link>
                     </div>

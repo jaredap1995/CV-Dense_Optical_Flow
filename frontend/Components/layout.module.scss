@@ -10,13 +10,13 @@
 
 @media screen and (min-width: $mobile-break) and (max-width: $desktop-break) {
   .main {
-    margin: 0 122px;
+    margin: 0 0px;
   }
 }
 
 @media screen and (max-width: $mobile-break) {
   .main {
-    margin: 0 12px;
+    margin: 0 0px;
   }
 }
 

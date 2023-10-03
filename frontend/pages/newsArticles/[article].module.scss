@@ -1,0 +1,25 @@
+.articleWrapper{
+    background-color: black;
+    height: 100vh;
+    width: 100%;
+
+    .imageContainer{
+        color: white;
+        background-color: green;
+        height: 33%;
+    }
+
+    .contentContainer{
+        background-color: red;
+        height: 67%;
+        color: white;
+
+        .articleTitle{
+            color: white;
+        }
+
+        .articleContent{
+            color: white;
+        }
+    }
+}
