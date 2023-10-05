@@ -1,25 +1,130 @@
+@import '_variables.scss';
+
 .articleWrapper{
     background-color: black;
-    height: 100vh;
-    width: 100%;
+    display: flex;
+    flex-direction: column;
 
     .imageContainer{
         color: white;
-        background-color: green;
-        height: 33%;
+        background-color: black;
+        flex-direction: row;
+        height: 33vh;
+        justify-content: center;
+
+        .imageHeader{
+            color: white;
+            width: 100%;
+        }
     }
 
     .contentContainer{
-        background-color: red;
-        height: 67%;
-        color: white;
+        background-color: white;
+        padding: 0 300px;
+        padding-top: 100px;
+        color: black;
+
+        .customBackButton {
+            display: flex;
+            align-items: center;
+            color: black;
+            cursor: pointer;
+        }
+        
+        .icon {
+            margin-right: 5px;
+        }
+
+        .dateAndNews {
+            gap: 12px;
+            color: black;
+            display: flex;
+            font-size: 21px;
+
+        }
 
         .articleTitle{
-            color: white;
+            color: black;
+            display: flex;
+            flex-direction: row;
+            justify-content: flex-start;
+            font-size: 32px;
+            letter-spacing: -.5px;
+            line-height: 38px;
+            font-weight: bolder;
+            position: relative;
+            
+            &::before, &::after {
+                content: "";
+                position: absolute;
+                left: 0;
+                width: 100%;
+                height: 0.5px;
+                background: grey;
+                z-index: 1;
+              }
+
+               &::before {
+                top: 0;
+              }
+              &::after{
+                bottom: 0;
+              }
         }
 
         .articleContent{
-            color: white;
+            color: black;
+            display: flex;
+            position: relative;
+            flex-direction: column;
+            justify-content: center;
+            line-height: 2em;
+            font-size: 19px;
+            padding-bottom: 30px;
+            font-weight: 400;
+            letter-spacing: .01em;
+            line-height: 1.5;
+            margin: 0;
+
+            &::after {
+            content: "";
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            width: 100%;
+            height: 0.5px;
+            background: grey;
+            z-index: 1;
+          }
+        }
+
+        .footerContent{
+            display: flex;
+            flex-direction: row;
+            padding-bottom: 100px;
+
+            .footerText{
+            width: 50%;
+            font-size: 14px;
+            font-weight: 800;
+            letter-spacing: .005em;
+            line-height: 1.5;
+            }
+
+            .footerLinks{
+            width: 50%;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            }
+        }
+
+        .articleContent strong{
+            font-weight: 900;
+            font-size: 1.5rem;
         }
     }
+
+    
 }
