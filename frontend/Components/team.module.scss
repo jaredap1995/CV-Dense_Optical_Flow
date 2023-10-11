@@ -1,0 +1,120 @@
+@import '_variables.scss';
+
+.mainContainer{
+    background-color: black;
+    position: relative;
+    height: $main-height; 
+
+    .centerContainer{
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        background: linear-gradient(rgba(0, 0, 0, 0.9), transparent);
+        width: 100%;
+        opacity: 1;
+        align-items: center;
+        scroll-snap-align: center;
+
+        .employeeImage{
+            display: flex;
+            flex-direction: column;
+            width: 50%;
+
+            img{
+                height: 100vh;
+                object-fit: cover;
+            }
+            }
+
+        .employeeDescription{
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            max-height: $main-height;
+            overflow-y: scroll;
+            font-weight: 800;
+            font-size: 1.2rem;
+            letter-spacing: .2em;
+            line-height: 1;
+            align-items: center;
+            background-color: black;
+            color: white;
+            gap: 12px;
+            
+
+            .isStrongName{
+                font-size: 32px;
+                font-weight: bolder;
+                letter-spacing: -.5px;
+                line-height: 38px;
+
+            }
+
+            .nameAndTitle{
+                color: white;
+                letter-spacing: -.5px;
+                font-size: 24px;
+            }
+
+            .shortDescription{
+                display: flex;
+                align-items: center;
+                justify-content: center;
+
+                p{
+                    margin: 0 50px;
+                    font-size: 18px;
+                    font-weight: 400;
+                    letter-spacing: .01em;
+                    line-height: 1.5;
+                }
+            }
+
+            
+            .expandButton{
+                color: white;  
+                cursor: pointer;
+                font-size: 18px;
+                font-weight: 900;
+                line-height: 38px;
+                letter-spacing: 1px;
+
+
+                &:hover {
+                    color: grey; 
+              }
+            }
+
+            .closeButton{
+                color: white;
+                cursor: pointer;
+                font-size: 18px;
+                font-weight: 900;
+                line-height: 38px;
+                letter-spacing: 1px;
+
+
+                &:hover {
+                    color: grey; 
+              }
+            }
+
+            .fullBio{
+                color: white;
+                margin: 0px 50px;
+                font-size: 18px;
+                font-weight: 400;
+                letter-spacing: .03em;
+                line-height: 1.5;
+                max-height: max-content;
+              }
+
+              
+
+         }
+
+
+    }
+
+}

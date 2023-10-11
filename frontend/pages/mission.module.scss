@@ -9,16 +9,18 @@
 
     .missionStatementContainer{
         display: flex;
-        text-align: center;
+        flex-direction: column;
         position: relative;
+        height: 80vh;
+        text-align: center;
         justify-content: center;
-        align-items: flex-start;
-        padding: 150px 150px;
 
         .missionText {
+          padding: 3em;
+          align-items: center;
             color: white;
             font-weight: bold;
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             letter-spacing: .2em;
             line-height: 2;
         }

@@ -38,17 +38,17 @@ const LandingPage: React.FC = () => {
             {/* Interactive Elements */}
             <section id='about' className={styles.interactiveSection}>
                         <article>
-                        <h2 data-aos="fade-down"> Real Time Velocity and Force Estimations</h2>
-                        <ul>
-                            <li data-aos="fade-right" className={styles.list}>Accurately identifies and analyzes your movements and the change in keypoint velocity across a live video stream</li>
-                            <li data-aos="fade-right" className={styles.list}>Provides immediate feedback to autoregulate your exercises and terminate your sets.</li>
-                            <li data-aos="fade-right" className={styles.list}> Work Smarter! Not Harder! </li>
-                        </ul>
+                            <h2 data-aos="fade-down"> Computer Vision for The Modern World </h2>
+                            <ul>
+                                <li data-aos="fade-right" className={styles.list}> Beyond Vision - A New Reality: Strong's cutting-edge AI isn't just another tech tool; it's your guidepost in a world craving actionable insights.</li>
+                                <li data-aos="fade-right" className={styles.list}> Revolutionizing Perception: From predicting structural collapses to physiological fatigue, embrace the power of computer vision that sees what the human eye can't.</li>
+                                <li data-aos="fade-right" className={styles.list}> Crafting Certainty in an Uncertain World: Uncertainty isn't inevitable. With Strong's pioneering solutions, predict the unpredictable. </li>
+                            </ul>
                         </article>
-                        <img src="./optical_flow.gif" alt="Feature 1" />
+                        {/* <img src="./sparse-vs-dense.gif" alt="Feature 1" /> */}
             </section>
 
-            {/* Parallax Section (This will require additional JS and CSS for the full effect) */}
+            {/* Parallax Section /*n }
             <section className={styles.aboutSection}>
                 <div className={styles.parallaxContent}>
                     <h2>Discover Innovations</h2>
@@ -56,22 +56,13 @@ const LandingPage: React.FC = () => {
                 </div>
             </section>
 
-            {/* Quick Links or Teasers */}
-            <section className={styles.quickLinksSection}>
-                <div className={styles.linkItem}>
-                    <h2>About Us</h2>
-                    <p>Learn more about our mission, vision, and journey.</p>
-                </div>
-                {/* Add more items as needed */}
-            </section>
-
             {/* Newsletter Signup */}
             <section className={styles.newsletterSection}>
-                <h2 className={styles.innerText}> Stay Updated!</h2>
+                <h2 className={styles.innerText}> Stay Updated</h2>
                 <p className={styles.innerText}> Subscribe to our newsletter to get the latest updates.</p>
                 <form>
                     <input type="email" placeholder="Your email address" />
-                    <button type="submit">Subscribe</button>
+                    <button className={styles.shimmerEffect} type="submit">Subscribe</button>
                 </form>
             </section>
 

@@ -3,7 +3,7 @@ import styles from './mission.module.scss'
 
 const mission: React.FC = () => {
 
-    const missionStatement = `We believe in pioneering computer vision techniques that transform human behavior.
+    const missionStatement = `We believe in pioneering computer vision techniques that transform human prosperity.
 
     Technology that enhances societal health, reduces crime, and minimizes stress.
     

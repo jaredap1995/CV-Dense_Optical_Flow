@@ -23,8 +23,14 @@ body, html {
   padding: 0;
   width: 100%;
   scroll-snap-type: y mandatory;
-  opacity: 1;
-  transition: opacity 0.5s ease-in-out;
+  overflow-y: scroll;
+  transition: opacity 3s ease-in-out;
+}
+
+button{
+  font-family: inherit;
+  background-color: transparent;
+  border: transparent;
 }
 
 body.fade-out {

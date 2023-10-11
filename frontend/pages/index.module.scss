@@ -23,6 +23,28 @@ $primary-dark: #3B5C7A;
     }
 }
 
+@keyframes shimmer {
+    0% {
+      background-position: -100% 0;
+    }
+    100% {
+      background-position: 100% 0;
+    }
+  }
+
+  .shimmerEffect {
+    background: linear-gradient(
+      to right,
+      transparent 25%,   
+      #5790e7 50%,   
+      white 100% 
+    );
+    background-size: 200% 100%;
+    animation: shimmer 3s infinite;
+    color: transparent;
+    background-clip: text;
+  }
+
 .container {
     margin: 0 auto;
     background: #000000;
@@ -40,7 +62,6 @@ $primary-dark: #3B5C7A;
     width: 100%;
 
     .heroImage {
-        width: 70%;
         height: 100%;
         object-fit: cover;
         opacity: 1;
@@ -64,22 +85,25 @@ $primary-dark: #3B5C7A;
 
 
 .interactiveSection {
-    justify-content: space-between;
-    margin: 50px 0;
+    margin: 50px 50px;
     color: white;
     display: flex;
+    flex-direction: column;
     align-items: center;
+    justify-content: center;
     width: 100%;
     font-size: 2rem;
     
             & > article {
-                flex: 1;
-                padding: 20px;
-                border-radius: 5px;
-                padding-left: 30px;
+                font-size: 1.5rem;
+                font-weight: 400;
+                letter-spacing: .03em;
+                line-height: 1.5;
 
                 h2 {
                     color: white; 
+                    text-align: center;
+                    align-items: center;
                     font-weight: bold;
                     font-size: 3rem;
                     padding-bottom: 50px;
@@ -87,12 +111,11 @@ $primary-dark: #3B5C7A;
 
                 ul {
                     padding-left: 0; 
-                    // remove default padding
 
                     li {
                         position: relative;
                         margin-bottom: 50px; 
-                        padding-left: 1rem; // space between bullet and list
+                        padding-left: 1rem; 
 
                         &::before {
                             position: absolute;
@@ -100,16 +123,16 @@ $primary-dark: #3B5C7A;
                             top: 50%;
                             transform: translateY(-50%);
                             color: black;
-                            font-size: 1.5rem; // size of the custom bullet
+                            font-size: 1.5rem; 
                         }
                 }
             }
         }
         img {
-            max-width: 100%;
-            height: 488px;
-            width: 488px;
-            float: right;
+            // max-width: 100%;
+            // height: 488px;
+            // width: 488px;
+            display: flex;
 
         }
     }
@@ -119,7 +142,7 @@ $primary-dark: #3B5C7A;
 
 .aboutSection {
     height: 800px;
-    background-image: linear-gradient(rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.5)), url('../public/im1.gif');
+    background-image: linear-gradient(rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.5)), url('../public/sparse-vs-dense.gif');
     background-attachment: fixed;
     background-position: center;
     background-repeat: no-repeat;
@@ -174,11 +197,12 @@ $primary-dark: #3B5C7A;
 
         button {
             padding: 15px 30px;
-            background: linear-gradient(#7db9e8, #3a8d9e);
+            background: linear-gradient(#4a8fe7, #6db2f3);
             border: none;
+            color: black;
             border-radius: 20px;
             cursor: pointer;
-            transition: background-color 0.3s;
+            // transition: background-color 0.3s;
         }
     }
 }
