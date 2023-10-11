@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import styles from './index.module.scss';
 import { useEffect } from 'react';
-import $ from "jquery";
 import AOS from 'aos';
 import 'aos/dist/aos.css';
 
@@ -9,7 +8,7 @@ import 'aos/dist/aos.css';
 const LandingPage: React.FC = () => {
 
     const [currentH1, setCurrentH1] = useState(0);
-    const h1Texts = ['Welcome to Strength', 'A New Frontier for Computer Vision and Human Behavior', 'Pure Human Machine Integration']
+    const h1Texts = ['Welcome to Strong', 'A New Frontier for Computer Vision and Human Behavior', 'Pure Human Machine Integration']
 
         useEffect(()=> {
             const interval = setInterval(() => {
@@ -25,6 +24,19 @@ const LandingPage: React.FC = () => {
             });
           }, []);
 
+    const aboutText = `Beyond Vision - A New Reality: Strong's cutting-edge AI isn't just another tech tool; it's your guidepost in a world craving actionable insights.
+    
+    Revolutionizing Perception: From predicting structural collapses to physiological fatigue, embrace the power of computer vision that sees what the human eye can't.
+
+    Crafting Certainty in an Uncertain World: Uncertainty isn't inevitable, with Strong's pioneering solutions, predict the unpredictable. 
+
+    A Holistic Vision: From human behavior to building structures, Strong’s AI understands both the organic and inorganic lifecyle.
+
+    Clarity in Complexity: In our intricate world, Strong stands as a beacon, turning uncertainties into clear actionable insights.
+    `
+
+    const sentences = aboutText.split('.').filter(sentence => sentence.trim() !=='')
+
     return (
         <div className={styles.container}>
 
@@ -37,14 +49,28 @@ const LandingPage: React.FC = () => {
 
             {/* Interactive Elements */}
             <section id='about' className={styles.interactiveSection}>
-                        <article>
-                            <h2 data-aos="fade-down"> Computer Vision for The Modern World </h2>
+            {/* <h2 data-aos="fade-down"> Vision for The Modern World </h2> */}
+                {
+                    sentences.map((sentence,index) => {
+                        const beginningText = sentence.trim().split(':');
+                        const shimmerWord = beginningText[0];
+                        const remainingWords =  beginningText.slice(1).join(' ');
+
+                        return (
+                            <div key={index}>
+                                <h3 data-aos="fade-left" className={`${styles.bulletHeader} ${styles.shimmerEffect}`}>{shimmerWord}</h3> 
+                                <p data-aos="fade-right" className={styles.bulletContent}>{remainingWords}.</p>
+                            </div>
+                        )                        
+                    })
+                }
+                        {/* <article>
                             <ul>
                                 <li data-aos="fade-right" className={styles.list}> Beyond Vision - A New Reality: Strong's cutting-edge AI isn't just another tech tool; it's your guidepost in a world craving actionable insights.</li>
                                 <li data-aos="fade-right" className={styles.list}> Revolutionizing Perception: From predicting structural collapses to physiological fatigue, embrace the power of computer vision that sees what the human eye can't.</li>
                                 <li data-aos="fade-right" className={styles.list}> Crafting Certainty in an Uncertain World: Uncertainty isn't inevitable. With Strong's pioneering solutions, predict the unpredictable. </li>
                             </ul>
-                        </article>
+                        </article> */}
                         {/* <img src="./sparse-vs-dense.gif" alt="Feature 1" /> */}
             </section>
 
@@ -57,14 +83,14 @@ const LandingPage: React.FC = () => {
             </section>
 
             {/* Newsletter Signup */}
-            <section className={styles.newsletterSection}>
+            {/* <div className={styles.newsletterSection}>
                 <h2 className={styles.innerText}> Stay Updated</h2>
                 <p className={styles.innerText}> Subscribe to our newsletter to get the latest updates.</p>
                 <form>
                     <input type="email" placeholder="Your email address" />
                     <button className={styles.shimmerEffect} type="submit">Subscribe</button>
                 </form>
-            </section>
+            </div> */}
 
             {/* Footer--->> Will add in layout */}
             {/* <footer className={styles.footer}>

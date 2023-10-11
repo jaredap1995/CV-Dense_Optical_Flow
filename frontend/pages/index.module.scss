@@ -1,12 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap');
 @import '_variables.scss';
 
-// Colors
-$primary-light: #E0E0E2;
-$accent: #81D2C7;
-$secondary-light: #B5BAD0;
-$secondary-dark: #7389AE;
-$primary-dark: #3B5C7A;
+
 
 @keyframes slideFade {
     0%, 10% {
@@ -46,11 +41,9 @@ $primary-dark: #3B5C7A;
   }
 
 .container {
-    margin: 0 auto;
     background: #000000;
-    box-shadow: 0px 0px 0px rgb(0, 0, 0,0);
-    border-radius: 30px;
     height: 100%;
+    width: 100vw;
     overflow-y: scroll;
     overflow-x: hidden;
 
@@ -58,8 +51,6 @@ $primary-dark: #3B5C7A;
 .heroSection {
     position: relative;
     text-align: center;
-    height: 100vh;
-    width: 100%;
 
     .heroImage {
         height: 100%;
@@ -85,126 +76,101 @@ $primary-dark: #3B5C7A;
 
 
 .interactiveSection {
-    margin: 50px 50px;
+    padding-bottom: 200px;
     color: white;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    // background-color: red;
     width: 100%;
-    font-size: 2rem;
-    
-            & > article {
-                font-size: 1.5rem;
-                font-weight: 400;
-                letter-spacing: .03em;
-                line-height: 1.5;
+    height: 100%;
+    font-size: 1.5rem;
 
-                h2 {
-                    color: white; 
+
+                .bulletHeader {
                     text-align: center;
                     align-items: center;
                     font-weight: bold;
                     font-size: 3rem;
-                    padding-bottom: 50px;
+                    padding-bottom: 10px;
                 }
 
-                ul {
-                    padding-left: 0; 
 
-                    li {
-                        position: relative;
-                        margin-bottom: 50px; 
-                        padding-left: 1rem; 
+                    .bulletContent {
+                        text-align: center;
+                    }
 
-                        &::before {
-                            position: absolute;
-                            left: 0;
-                            top: 50%;
-                            transform: translateY(-50%);
-                            color: black;
-                            font-size: 1.5rem; 
-                        }
-                }
-            }
-        }
-        img {
-            // max-width: 100%;
-            // height: 488px;
-            // width: 488px;
-            display: flex;
-
-        }
     }
         
     
 
 
-.aboutSection {
-    height: 800px;
-    background-image: linear-gradient(rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.5)), url('../public/sparse-vs-dense.gif');
-    background-attachment: fixed;
-    background-position: center;
-    background-repeat: no-repeat;
-    background-size: cover;
+// .aboutSection {
+//     height: 800px;
+//     background-image: linear-gradient(rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.5)), url('../public/sparse-vs-dense.gif');
+//     background-attachment: fixed;
+//     background-position: center;
+//     background-repeat: no-repeat;
+//     background-size: cover;
 
-    .parallaxContent {
-        text-align: center;
-        padding-top: 150px;
+//     .parallaxContent {
+//         text-align: center;
+//         padding-top: 150px;
 
-        h2, p {
-            color: white;
-        }
-    }
-}
+//         h2, p {
+//             color: white;
+//         }
+//     }
+// }
 
-.quickLinksSection {
-    display: flex;
-    justify-content: space-between;
-    margin: 50px 0;
+// .quickLinksSection {
+//     display: flex;
+//     justify-content: space-between;
+//     margin: 50px 0;
 
-    .linkItem {
-        flex: 1;
-        margin: 0 10px;
+//     .linkItem {
+//         flex: 1;
+//         margin: 0 10px;
 
-        h2, p {
-            text-align: center;
-            color: white;
-        }
-    }
-}
+//         h2, p {
+//             text-align: center;
+//             color: white;
+//         }
+//     }
+// }
 
-.newsletterSection {
-    background-color: black;
-    padding-bottom: 100px;
-    text-align: center;
+// .newsletterSection {
+//     background-color: black;
+//     padding-bottom: 100px;
+//     text-align: center;
 
-    h2, p {
-        color: whitesmoke;
-        transform: translateX(-10%);
-    }
+//     h2, p {
+//         color: whitesmoke;
+//         transform: translateX(-10%);
+//     }
 
-    form {
-        margin-top: -40px;
-        transform: translateX(20%);
+//     form {
+//         margin-top: -40px;
+//         transform: translateX(20%);
 
-        input {
-            padding: 15px;
-            border: none;
-            border-radius: 20px;
-            margin-right: 20px;
-        }
+//         input {
+//             padding: 15px;
+//             border: none;
+//             border-radius: 20px;
+//             margin-right: 20px;
+//         }
 
-        button {
-            padding: 15px 30px;
-            background: linear-gradient(#4a8fe7, #6db2f3);
-            border: none;
-            color: black;
-            border-radius: 20px;
-            cursor: pointer;
-            // transition: background-color 0.3s;
-        }
-    }
-}
+//         button {
+//             padding: 15px 30px;
+//             background: linear-gradient(#4a8fe7, #6db2f3);
+//             border: none;
+//             color: black;
+//             border-radius: 20px;
+//             cursor: pointer;
+//             // transition: background-color 0.3s;
+//         }
+//     }
+// }
 
 }

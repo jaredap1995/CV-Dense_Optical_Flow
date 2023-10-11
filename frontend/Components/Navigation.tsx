@@ -70,12 +70,17 @@ const Navigation = () => {
                                 Mission
                             </Link>
                         </li>
+                        <li>
+                            <Link href="/account">
+                                Account
+                            </Link>
+                        </li>
                     </ul>
                 </nav>
 
                 <div className={`${styles.actionButtons}`}>
-                        <Link className={`${styles.fullSizeLink} ${styles.shimmerEffect}`} href="/app">
-                            Demo 
+                        <Link className={`${styles.fullSizeLink} ${styles.shimmerEffect}`} href="/waitlist">
+                            Priority Access 
                         </Link>
                 </div>
         </header>
