@@ -26,7 +26,7 @@ const Exercises = () => {
     return (
         <div>
             <img src="http://127.0.0.1:8000/camera" className={styles.videoStream}/>
-            <h1 className={styles.repCount}> Reps: {repCount}</h1>
+            {/* <h1 className={styles.repCount}> Reps: {repCount}</h1> */}
         </div>
     )
 }

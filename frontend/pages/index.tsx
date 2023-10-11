@@ -24,13 +24,11 @@ const LandingPage: React.FC = () => {
             });
           }, []);
 
-    const aboutText = `Beyond Vision - A New Reality: Strong's cutting-edge AI isn't just another tech tool; it's your guidepost in a world craving actionable insights.
+    const aboutText = `Beyond Vision - A New Reality: Strong's cutting-edge AI isn't just another tech tool; it's a guidepost to a smarter, safer, and healthier future.
     
     Revolutionizing Perception: From predicting structural collapses to physiological fatigue, embrace the power of computer vision that sees what the human eye can't.
 
     Crafting Certainty in an Uncertain World: Uncertainty isn't inevitable, with Strong's pioneering solutions, predict the unpredictable. 
-
-    A Holistic Vision: From human behavior to building structures, Strong’s AI understands both the organic and inorganic lifecyle.
 
     Clarity in Complexity: In our intricate world, Strong stands as a beacon, turning uncertainties into clear actionable insights.
     `
